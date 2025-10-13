@@ -9,9 +9,15 @@ interface Task {
 
 interface Props {
   tasks: Task[];
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+  onDeleteTask?: (taskId: string) => void;
 }
 
-export default function TaskBoard({ tasks }: Props) {
+export default function TaskBoard({
+  tasks,
+  onUpdateTask,
+  onDeleteTask,
+}: Props) {
   const statuses: ("todo" | "in-progress" | "done")[] = [
     "todo",
     "in-progress",
@@ -31,7 +37,12 @@ export default function TaskBoard({ tasks }: Props) {
           {tasks
             .filter((t) => t.status === status)
             .map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                onUpdateTask={onUpdateTask}
+                onDeleteTask={onDeleteTask}
+              />
             ))}
         </div>
       ))}
