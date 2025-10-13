@@ -21,6 +21,7 @@ interface Project {
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  console.log("projects", projects);
 
   useEffect(() => {
     fetch("/api/projects")
