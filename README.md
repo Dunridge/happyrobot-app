@@ -9,7 +9,6 @@ Stack:
 3. Database – PostgreSQL
 4. Real-time updates – WebSockets
 
-
 # Collaborative Task Management System - Project Brief
 
 ## Objectives

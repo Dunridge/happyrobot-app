@@ -1,30 +1,32 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-interface Params {
-  projectId: string;
-  taskId: string;
-}
-
-export async function GET(_req: NextRequest, { params }: { params: Params }) {
-  const { projectId, taskId } = params;
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string; taskId: string }> }
+) {
+  const { id, taskId } = await params;
 
   const task = await prisma.task.findFirst({
-    where: { id: taskId, projectId },
+    where: { id: taskId, projectId: id },
   });
 
-  if (!task)
+  if (!task) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
+  }
 
   return NextResponse.json(task);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Params }) {
-  const { projectId, taskId } = params;
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; taskId: string }> }
+) {
+  const { id, taskId } = await params;
   const data = await req.json();
 
   const task = await prisma.task.update({
-    where: { id: taskId },
+    where: { id: taskId, projectId: id },
     data,
   });
 
@@ -33,13 +35,13 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
-  const { projectId, taskId } = params;
+  const { id, taskId } = await params;
 
   try {
     await prisma.task.delete({
-      where: { id: taskId },
+      where: { id: taskId, projectId: id },
     });
     return NextResponse.json({ success: true });
   } catch {

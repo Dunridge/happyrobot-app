@@ -1,12 +1,11 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-interface Params {
-  id: string;
-}
-
-export async function GET(_req: Request, { params }: { params: Params }) {
-  const { id } = params;
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
 
   const tasks = await prisma.task.findMany({
     where: { projectId: id },
@@ -15,10 +14,13 @@ export async function GET(_req: Request, { params }: { params: Params }) {
   return NextResponse.json(tasks);
 }
 
-export async function POST(req: NextRequest, { params }: { params: Params }) {
-  const { id } = params;
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const data = await req.json();
-  const { title, description, metadata } = data;
+  const { title } = data;
 
   if (!title) {
     return NextResponse.json(
@@ -30,8 +32,6 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const task = await prisma.task.create({
     data: {
       title,
-      description,
-      metadata,
       projectId: id,
     },
   });
