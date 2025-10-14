@@ -141,6 +141,7 @@ export default function ProjectPage() {
                 title: newTaskTitle,
                 status: "todo",
                 dependencies: newTaskDependencies,
+                projectId: projectId as string,
               });
               setNewTaskTitle("");
               setNewTaskDependencies([]);

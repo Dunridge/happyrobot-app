@@ -2,6 +2,7 @@
 
 import { Task } from "@/types/types";
 import { useState } from "react";
+import Link from "next/link";
 
 type Props = {
   task: Task;
@@ -21,6 +22,7 @@ export default function TaskCard({
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const statuses: Task["status"][] = ["todo", "in-progress", "done"];
+  console.log("task", task);
 
   const handleSave = () => {
     if (onUpdateTask && title.trim() !== task.title) {
@@ -36,7 +38,7 @@ export default function TaskCard({
   };
 
   return (
-    <div className="flex flex-col gap-3 p-3 bg-white dark:bg-gray-800 text-white rounded shadow mb-2">
+    <div className="flex flex-col cursor-pointer gap-3 p-3 bg-white dark:bg-gray-800 text-white rounded shadow mb-2">
       {isEditing ? (
         <div className="flex gap-2 items-center">
           <input
@@ -98,6 +100,13 @@ export default function TaskCard({
           </div>
         )}
       </div>
+
+      <Link
+        href={`/projects/${task.projectId}/tasks/${task.id}`}
+        className="block p-4 border rounded shadow hover:bg-gray-100"
+      >
+        Open Task
+      </Link>
     </div>
   );
 }
