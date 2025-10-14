@@ -25,12 +25,47 @@ export async function PUT(
   const { id, taskId } = await params;
   const data = await req.json();
 
-  const task = await prisma.task.update({
-    where: { id: taskId, projectId: id },
-    data,
+  console.log("Incoming data:", data);
+
+  const existingTask = await prisma.task.findUnique({
+    where: { id: taskId },
   });
 
-  return NextResponse.json(task);
+  if (!existingTask) {
+    return NextResponse.json({ error: "Task not found" }, { status: 404 });
+  }
+
+  if (data.status === "done" && existingTask.dependencies.length > 0) {
+    const dependencyTasks = await prisma.task.findMany({
+      where: { id: { in: existingTask.dependencies } },
+      select: { id: true, status: true },
+    });
+
+    const incompleteDeps = dependencyTasks.filter((t) => t.status !== "done");
+
+    if (incompleteDeps.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot mark task as done. All dependency tasks must be in 'done' state first.",
+          incompleteDependencies: incompleteDeps.map((t) => t.id),
+        },
+        { status: 400 }
+      );
+    }
+  }
+
+  const updatedTask = await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      title: data.title ?? existingTask.title,
+      status: data.status ?? existingTask.status,
+      dependencies: data.dependencies ?? existingTask.dependencies,
+      projectId: id,
+    },
+  });
+
+  return NextResponse.json(updatedTask);
 }
 
 export async function DELETE(

@@ -3,28 +3,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import TaskBoard from "@/components/TaskBoard";
-
-interface Task {
-  id: string;
-  title: string;
-  status: "todo" | "in-progress" | "done";
-}
-
-interface Project {
-  id: string;
-  name: string;
-  description?: string;
-}
+import toast from "react-hot-toast";
+import Select from "react-select";
+import { Project, Task } from "@/types/types";
 
 export default function ProjectPage() {
   const params = useParams();
   const projectId = params.projectId;
-
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDependencies, setNewTaskDependencies] = useState<string[]>([]);
 
-  // Fetch project & tasks on mount
   useEffect(() => {
     fetch(`/api/projects/${projectId}`)
       .then((res) => res.json())
@@ -37,7 +27,6 @@ export default function ProjectPage() {
       .catch(console.error);
   }, [projectId]);
 
-  // Add new task (optimistic)
   const addTask = async (task: Omit<Task, "id">) => {
     const tempTask: Task = { id: crypto.randomUUID(), ...task };
     setTasks((prev) => [...prev, tempTask]);
@@ -58,28 +47,34 @@ export default function ProjectPage() {
     }
   };
 
-  // Update a task (optimistic)
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     const prevTask = tasks.find((t) => t.id === taskId);
     if (!prevTask) return;
-
     const updatedTask = { ...prevTask, ...updates };
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
     try {
-      await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
+      const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
+        toast.error(errorData.error || "Failed to update task");
+      } else {
+        const savedTask = await res.json();
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? savedTask : t)));
+      }
     } catch (err) {
       console.error(err);
-      // Rollback on failure
       setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
+      alert("Network error: failed to update task");
     }
   };
 
-  // Delete a task (optimistic)
   const deleteTask = async (taskId: string) => {
     const prevTasks = [...tasks];
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
@@ -94,6 +89,7 @@ export default function ProjectPage() {
     }
   };
 
+  // TODO: add a spinner loader here
   if (!project) return <div>Loading project...</div>;
 
   return (
@@ -107,23 +103,49 @@ export default function ProjectPage() {
         onDeleteTask={deleteTask}
       />
 
-      {/* Add new task */}
       <div className="mt-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="New task title"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          className="border p-2 flex-1"
-        />
+        <div className="flex flex-col flex-1">
+          <label htmlFor="new-task-title" className="mb-1 font-medium">
+            Task Title
+          </label>
+          <input
+            id="new-task-title"
+            type="text"
+            placeholder="Enter task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            className="border p-2 w-full"
+          />
+        </div>
+
+        <div className="flex flex-col flex-1">
+          <label htmlFor="new-task-dependencies" className="mb-1 font-medium">
+            Depends on
+          </label>
+          <Select
+            isMulti
+            options={tasks.map((t) => ({ value: t.id, label: t.title }))}
+            value={tasks
+              .filter((t) => newTaskDependencies.includes(t.id))
+              .map((t) => ({ value: t.id, label: t.title }))}
+            onChange={(selected) => {
+              setNewTaskDependencies(selected.map((s) => s.value));
+            }}
+          />
+        </div>
+
         <button
           onClick={() => {
             if (newTaskTitle.trim()) {
-              addTask({ title: newTaskTitle, status: "todo" });
+              addTask({
+                title: newTaskTitle,
+                status: "todo",
+                dependencies: newTaskDependencies,
+              });
               setNewTaskTitle("");
+              setNewTaskDependencies([]);
             }
           }}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           Add Task
         </button>
