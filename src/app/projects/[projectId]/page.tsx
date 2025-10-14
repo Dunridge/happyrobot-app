@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import TaskBoard from "@/components/TaskBoard";
+import toast from "react-hot-toast";
 
 interface Task {
   id: string;
@@ -40,7 +41,6 @@ export default function ProjectPage() {
   const addTask = async (task: Omit<Task, "id">) => {
     const tempTask: Task = { id: crypto.randomUUID(), ...task };
     setTasks((prev) => [...prev, tempTask]);
-    // the dependencies array is sent here but the task is not updated on the backend
 
     try {
       const res = await fetch(`/api/projects/${projectId}/tasks`, {
@@ -61,20 +61,28 @@ export default function ProjectPage() {
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     const prevTask = tasks.find((t) => t.id === taskId);
     if (!prevTask) return;
-
     const updatedTask = { ...prevTask, ...updates };
-    // TODO: figure out why it is not passing dependencies here
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
     try {
-      await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
+      const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
+        toast.error(errorData.error || "Failed to update task");
+      } else {
+        const savedTask = await res.json();
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? savedTask : t)));
+      }
     } catch (err) {
       console.error(err);
       setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
+      alert("Network error: failed to update task");
     }
   };
 
@@ -92,6 +100,7 @@ export default function ProjectPage() {
     }
   };
 
+  // TODO: add a spinner loader here
   if (!project) return <div>Loading project...</div>;
 
   return (
