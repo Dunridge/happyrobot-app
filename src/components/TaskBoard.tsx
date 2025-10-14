@@ -31,7 +31,7 @@ export default function TaskBoard({
           key={status}
           className="flex-1 min-w-[250px] bg-gray-100 dark:bg-gray-700 p-2 rounded"
         >
-          <h3 className="font-bold mb-2 capitalize">
+          <h3 className="font-bold mb-2 text-white capitalize">
             {status.replace("-", " ")}
           </h3>
           {tasks

@@ -20,7 +20,7 @@ export async function POST(
 ) {
   const { id } = await params;
   const data = await req.json();
-  const { title } = data;
+  const { title, status, dependencies } = data;
 
   if (!title) {
     return NextResponse.json(
@@ -29,12 +29,22 @@ export async function POST(
     );
   }
 
-  const task = await prisma.task.create({
-    data: {
-      title,
-      projectId: id,
-    },
-  });
+  try {
+    const task = await prisma.task.create({
+      data: {
+        title,
+        status: status ?? "todo",
+        projectId: id,
+        dependencies: dependencies ?? [],
+      },
+    });
 
-  return NextResponse.json(task, { status: 201 });
+    return NextResponse.json(task, { status: 201 });
+  } catch (err) {
+    console.error("Error creating task:", err);
+    return NextResponse.json(
+      { error: "Failed to create task" },
+      { status: 500 }
+    );
+  }
 }

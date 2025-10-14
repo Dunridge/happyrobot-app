@@ -8,6 +8,7 @@ interface Task {
   id: string;
   title: string;
   status: "todo" | "in-progress" | "done";
+  dependencies: string[];
 }
 
 interface Project {
@@ -19,12 +20,11 @@ interface Project {
 export default function ProjectPage() {
   const params = useParams();
   const projectId = params.projectId;
-
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDependencies, setNewTaskDependencies] = useState<string[]>([]);
 
-  // Fetch project & tasks on mount
   useEffect(() => {
     fetch(`/api/projects/${projectId}`)
       .then((res) => res.json())
@@ -37,10 +37,10 @@ export default function ProjectPage() {
       .catch(console.error);
   }, [projectId]);
 
-  // Add new task (optimistic)
   const addTask = async (task: Omit<Task, "id">) => {
     const tempTask: Task = { id: crypto.randomUUID(), ...task };
     setTasks((prev) => [...prev, tempTask]);
+    // the dependencies array is sent here but the task is not updated on the backend
 
     try {
       const res = await fetch(`/api/projects/${projectId}/tasks`, {
@@ -58,12 +58,12 @@ export default function ProjectPage() {
     }
   };
 
-  // Update a task (optimistic)
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     const prevTask = tasks.find((t) => t.id === taskId);
     if (!prevTask) return;
 
     const updatedTask = { ...prevTask, ...updates };
+    // TODO: figure out why it is not passing dependencies here
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
     try {
@@ -74,12 +74,10 @@ export default function ProjectPage() {
       });
     } catch (err) {
       console.error(err);
-      // Rollback on failure
       setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
     }
   };
 
-  // Delete a task (optimistic)
   const deleteTask = async (taskId: string) => {
     const prevTasks = [...tasks];
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
@@ -107,23 +105,57 @@ export default function ProjectPage() {
         onDeleteTask={deleteTask}
       />
 
-      {/* Add new task */}
       <div className="mt-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="New task title"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          className="border p-2 flex-1"
-        />
+        <div className="flex flex-col flex-1">
+          <label htmlFor="new-task-title" className="mb-1 font-medium">
+            Task Title
+          </label>
+          <input
+            id="new-task-title"
+            type="text"
+            placeholder="Enter task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            className="border p-2 w-full"
+          />
+        </div>
+
+        <div className="flex flex-col flex-1">
+          <label htmlFor="new-task-dependencies" className="mb-1 font-medium">
+            Dependencies
+          </label>
+          <select
+            id="new-task-dependencies"
+            multiple
+            value={newTaskDependencies}
+            onChange={(e) => {
+              const selected = Array.from(e.target.selectedOptions).map(
+                (option) => option.value
+              );
+              setNewTaskDependencies(selected);
+            }}
+            className="border p-2 w-full"
+          >
+            {tasks.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <button
           onClick={() => {
             if (newTaskTitle.trim()) {
-              addTask({ title: newTaskTitle, status: "todo" });
+              addTask({
+                title: newTaskTitle,
+                status: "todo",
+                dependencies: newTaskDependencies,
+              });
               setNewTaskTitle("");
+              setNewTaskDependencies([]);
             }
           }}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           Add Task
         </button>

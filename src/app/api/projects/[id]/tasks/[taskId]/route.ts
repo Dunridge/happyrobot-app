@@ -25,12 +25,25 @@ export async function PUT(
   const { id, taskId } = await params;
   const data = await req.json();
 
-  const task = await prisma.task.update({
-    where: { id: taskId, projectId: id },
-    data,
-  });
+  console.log("Incoming data:", data);
 
-  return NextResponse.json(task);
+  try {
+    const task = await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        title: data.title,
+        status: data.status,
+        dependencies: data.dependencies ?? [],
+        projectId: id,
+      },
+    });
+
+    console.log("Updated task:", task);
+    return NextResponse.json(task);
+  } catch (err) {
+    console.error("Error updating task:", err);
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  }
 }
 
 export async function DELETE(

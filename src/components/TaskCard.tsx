@@ -33,7 +33,7 @@ export default function TaskCard({ task, onUpdateTask, onDeleteTask }: Props) {
   };
 
   return (
-    <div className="p-3 bg-white dark:bg-gray-800 rounded shadow mb-2">
+    <div className="p-3 bg-white dark:bg-gray-800 text-white rounded shadow mb-2">
       {isEditing ? (
         <div className="flex gap-2 items-center">
           <input
