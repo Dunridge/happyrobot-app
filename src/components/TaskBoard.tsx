@@ -1,11 +1,7 @@
 "use client";
+import { Task } from "@/types/types";
 import TaskCard from "./TaskCard";
-
-interface Task {
-  id: string;
-  title: string;
-  status: "todo" | "in-progress" | "done";
-}
+import { useMemo } from "react";
 
 interface Props {
   tasks: Task[];
@@ -23,6 +19,19 @@ export default function TaskBoard({
     "in-progress",
     "done",
   ];
+
+  const dependentsMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+
+    tasks.forEach((t: Task) => {
+      t.dependencies.forEach((depId) => {
+        if (!map[depId]) map[depId] = [];
+        map[depId].push(t.title);
+      });
+    });
+
+    return map;
+  }, [tasks]);
 
   return (
     <div className="flex gap-4 p-4 overflow-x-auto">
@@ -42,6 +51,7 @@ export default function TaskBoard({
                 task={task}
                 onUpdateTask={onUpdateTask}
                 onDeleteTask={onDeleteTask}
+                dependentTaskNames={dependentsMap[task.id] || []}
               />
             ))}
         </div>

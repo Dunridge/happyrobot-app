@@ -4,19 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import TaskBoard from "@/components/TaskBoard";
 import toast from "react-hot-toast";
-
-interface Task {
-  id: string;
-  title: string;
-  status: "todo" | "in-progress" | "done";
-  dependencies: string[];
-}
-
-interface Project {
-  id: string;
-  name: string;
-  description?: string;
-}
+import Select from "react-select";
+import { Project, Task } from "@/types/types";
 
 export default function ProjectPage() {
   const params = useParams();
@@ -131,26 +120,18 @@ export default function ProjectPage() {
 
         <div className="flex flex-col flex-1">
           <label htmlFor="new-task-dependencies" className="mb-1 font-medium">
-            Dependencies
+            Depends on
           </label>
-          <select
-            id="new-task-dependencies"
-            multiple
-            value={newTaskDependencies}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions).map(
-                (option) => option.value
-              );
-              setNewTaskDependencies(selected);
+          <Select
+            isMulti
+            options={tasks.map((t) => ({ value: t.id, label: t.title }))}
+            value={tasks
+              .filter((t) => newTaskDependencies.includes(t.id))
+              .map((t) => ({ value: t.id, label: t.title }))}
+            onChange={(selected) => {
+              setNewTaskDependencies(selected.map((s) => s.value));
             }}
-            className="border p-2 w-full"
-          >
-            {tasks.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.title}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
         <button
