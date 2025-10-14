@@ -86,7 +86,7 @@ export default function TaskCard({
         </div>
       )}
 
-      <div className="flex flex-col gpa-1">
+      <div className="flex flex-col gap-1">
         {childrenTaskNames.length > 0 && (
           <div className="text-sm text-gray-400 dark:text-gray-500 mt-1">
             Children: {childrenTaskNames.join(", ")}
