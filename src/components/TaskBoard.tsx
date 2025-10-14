@@ -3,11 +3,11 @@ import { Task } from "@/types/types";
 import TaskCard from "./TaskCard";
 import { useMemo } from "react";
 
-interface Props {
+type Props = {
   tasks: Task[];
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
   onDeleteTask?: (taskId: string) => void;
-}
+};
 
 export default function TaskBoard({
   tasks,
@@ -20,7 +20,7 @@ export default function TaskBoard({
     "done",
   ];
 
-  const dependentsMap = useMemo(() => {
+  const childrenTasksMap = useMemo(() => {
     const map: Record<string, string[]> = {};
 
     tasks.forEach((t: Task) => {
@@ -30,6 +30,16 @@ export default function TaskBoard({
       });
     });
 
+    return map;
+  }, [tasks]);
+
+  const parentTasksMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    tasks.forEach((t) => {
+      map[t.id] = t.dependencies
+        .map((depId) => tasks.find((task) => task.id === depId)?.title)
+        .filter(Boolean) as string[];
+    });
     return map;
   }, [tasks]);
 
@@ -51,7 +61,8 @@ export default function TaskBoard({
                 task={task}
                 onUpdateTask={onUpdateTask}
                 onDeleteTask={onDeleteTask}
-                dependentTaskNames={dependentsMap[task.id] || []}
+                childrenTaskNames={childrenTasksMap[task.id] || []}
+                parentTaskNames={parentTasksMap[task.id] || []}
               />
             ))}
         </div>

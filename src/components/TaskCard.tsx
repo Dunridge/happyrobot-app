@@ -3,18 +3,20 @@
 import { Task } from "@/types/types";
 import { useState } from "react";
 
-interface Props {
+type Props = {
   task: Task;
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
   onDeleteTask?: (taskId: string) => void;
-  dependentTaskNames: string[];
-}
+  childrenTaskNames: string[];
+  parentTaskNames: string[];
+};
 
 export default function TaskCard({
   task,
   onUpdateTask,
   onDeleteTask,
-  dependentTaskNames,
+  childrenTaskNames,
+  parentTaskNames,
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
@@ -84,10 +86,15 @@ export default function TaskCard({
         </div>
       )}
 
-      <div>
-        {dependentTaskNames.length > 0 && (
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-            Dependencies: {dependentTaskNames.join(", ")}
+      <div className="flex flex-col gpa-1">
+        {childrenTaskNames.length > 0 && (
+          <div className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            Children: {childrenTaskNames.join(", ")}
+          </div>
+        )}
+        {parentTaskNames.length > 0 && (
+          <div className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            Parents: {parentTaskNames.join(", ")}
           </div>
         )}
       </div>
