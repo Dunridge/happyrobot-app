@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import TaskBoard from "@/components/TaskBoard";
 import toast from "react-hot-toast";
 import Select from "react-select";
 import { Project, Task } from "@/types/types";
 
 export default function ProjectPage() {
+  const router = useRouter();
   const params = useParams();
   const projectId = params.projectId;
   const [project, setProject] = useState<Project | null>(null);
@@ -153,6 +154,12 @@ export default function ProjectPage() {
 
   return (
     <div className="p-4">
+      <button
+        onClick={() => router.back()}
+        className="mb-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
+      >
+        ← Back
+      </button>
       <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
       {project.description && <p className="mb-4">{project.description}</p>}
 

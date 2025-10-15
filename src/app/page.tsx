@@ -1,13 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import ProjectList from "@/components/ProjectList";
+import { Project } from "@/types/types";
 
-interface Project {
-  id: string;
-  name: string;
-  description?: string;
-}
-
+// TODO: add the endpoint call to add a new project here
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   console.log("projects", projects);
