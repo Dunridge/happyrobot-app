@@ -105,7 +105,6 @@ export default function ProjectPage() {
 
       <div className="w-full flex justify-center">
         <div className="mt-6 p-4 max-w-[500px] min-w-[360px] bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
-          {/* Task Title */}
           <div className="flex flex-col">
             <label
               htmlFor="new-task-title"
@@ -123,7 +122,6 @@ export default function ProjectPage() {
             />
           </div>
 
-          {/* Dependencies */}
           <div className="flex flex-col">
             <label
               htmlFor="new-task-dependencies"
@@ -145,7 +143,6 @@ export default function ProjectPage() {
             />
           </div>
 
-          {/* Add Task Button */}
           <button
             onClick={() => {
               if (newTaskTitle.trim()) {
@@ -159,7 +156,7 @@ export default function ProjectPage() {
                 setNewTaskDependencies([]);
               }
             }}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
+            className="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
           >
             Add Task
           </button>
