@@ -7,15 +7,38 @@ export async function GET(
 ) {
   const { id, taskId } = await params;
 
-  const task = await prisma.task.findFirst({
-    where: { id: taskId, projectId: id },
+  const tasks = await prisma.task.findMany({
+    where: { projectId: id },
+    include: {
+      comments: true,
+    },
   });
 
-  if (!task) {
+  const taskMap = new Map(tasks.map((t) => [t.id, t]));
+
+  const tasksWithRelations = tasks.map((t) => {
+    const parents = t.dependencies
+      .map((depId) => taskMap.get(depId))
+      .filter(Boolean)
+      .map((p) => ({ id: p!.id, title: p!.title }));
+
+    const children = tasks
+      .filter((other) => other.dependencies.includes(t.id))
+      .map((child) => ({ id: child.id, title: child.title }));
+
+    return {
+      ...t,
+      parentTasks: parents,
+      childTasks: children,
+    };
+  });
+  const taskWithRelations = tasksWithRelations.find((t) => t.id === taskId);
+
+  if (!taskWithRelations) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  return NextResponse.json(task);
+  return NextResponse.json(taskWithRelations);
 }
 
 export async function PUT(

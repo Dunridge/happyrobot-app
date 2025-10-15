@@ -21,35 +21,21 @@ export default function ProjectPage() {
       .then(setProject)
       .catch(console.error);
 
+    fetchProjectTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  const fetchProjectTasks = async () => {
     fetch(`/api/projects/${projectId}/tasks`)
       .then((res) => res.json())
       .then(setTasks)
       .catch(console.error);
-  }, [projectId]);
-
-  const addTask = async (task: Omit<Task, "id">) => {
-    const tempTask: Task = { id: crypto.randomUUID(), ...task };
-    setTasks((prev) => [...prev, tempTask]);
-
-    try {
-      const res = await fetch(`/api/projects/${projectId}/tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(task),
-      });
-      const savedTask = await res.json();
-      setTasks((prev) =>
-        prev.map((t) => (t.id === tempTask.id ? savedTask : t))
-      );
-    } catch (err) {
-      console.error(err);
-      setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
-    }
   };
 
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     const prevTask = tasks.find((t) => t.id === taskId);
     if (!prevTask) return;
+
     const updatedTask = { ...prevTask, ...updates };
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
@@ -57,21 +43,35 @@ export default function ProjectPage() {
       const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({
+          ...updatedTask,
+        }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
         setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
         toast.error(errorData.error || "Failed to update task");
-      } else {
-        const savedTask = await res.json();
-        setTasks((prev) => prev.map((t) => (t.id === taskId ? savedTask : t)));
+        return;
       }
+
+      const savedTask: Task = await res.json();
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...updatedTask,
+                ...savedTask,
+                parentTasks: prevTask.parentTasks,
+                childTasks: prevTask.childTasks,
+              }
+            : t
+        )
+      );
     } catch (err) {
       console.error(err);
       setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
-      alert("Network error: failed to update task");
+      toast.error("Network error: failed to update task");
     }
   };
 
@@ -89,6 +89,65 @@ export default function ProjectPage() {
     }
   };
 
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+    const tempTask: Task = {
+      id: crypto.randomUUID(),
+      title: newTaskTitle,
+      status: "todo",
+      projectId: projectId as string,
+      dependencies: newTaskDependencies,
+      parentTasks: [],
+      childTasks: [],
+    };
+    setTasks((prev) => [...prev, tempTask]);
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTaskTitle,
+          status: "todo",
+          dependencies: newTaskDependencies,
+          projectId: projectId,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create task");
+      }
+
+      const savedTask: Task = await res.json();
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === tempTask.id ? savedTask : t))
+      );
+
+      if (newTaskDependencies.length > 0) {
+        setTasks((prev) =>
+          prev.map((t) =>
+            newTaskDependencies.includes(t.id)
+              ? {
+                  ...t,
+                  childTasks: [
+                    ...t.childTasks,
+                    { id: savedTask.id, title: savedTask.title },
+                  ],
+                }
+              : t
+          )
+        );
+      }
+      setNewTaskTitle("");
+      setNewTaskDependencies([]);
+    } catch (err) {
+      console.error(err);
+      setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
+      toast.error("Failed to add task");
+    }
+  };
+
   // TODO: add a spinner loader here
   if (!project) return <div>Loading project...</div>;
 
@@ -103,52 +162,53 @@ export default function ProjectPage() {
         onDeleteTask={deleteTask}
       />
 
-      <div className="mt-4 flex gap-2">
-        <div className="flex flex-col flex-1">
-          <label htmlFor="new-task-title" className="mb-1 font-medium">
-            Task Title
-          </label>
-          <input
-            id="new-task-title"
-            type="text"
-            placeholder="Enter task title"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            className="border p-2 w-full"
-          />
-        </div>
+      <div className="w-full flex justify-center">
+        <div className="mt-6 p-4 max-w-[500px] min-w-[360px] bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
+          <div className="flex flex-col">
+            <label
+              htmlFor="new-task-title"
+              className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+            >
+              Task Title
+            </label>
+            <input
+              id="new-task-title"
+              type="text"
+              placeholder="Enter task title"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
 
-        <div className="flex flex-col flex-1">
-          <label htmlFor="new-task-dependencies" className="mb-1 font-medium">
-            Depends on
-          </label>
-          <Select
-            isMulti
-            options={tasks.map((t) => ({ value: t.id, label: t.title }))}
-            value={tasks
-              .filter((t) => newTaskDependencies.includes(t.id))
-              .map((t) => ({ value: t.id, label: t.title }))}
-            onChange={(selected) => {
-              setNewTaskDependencies(selected.map((s) => s.value));
-            }}
-          />
-        </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor="new-task-dependencies"
+              className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+            >
+              Depends on
+            </label>
+            <Select
+              isMulti
+              options={tasks.map((t) => ({ value: t.id, label: t.title }))}
+              value={tasks
+                .filter((t) => newTaskDependencies.includes(t.id))
+                .map((t) => ({ value: t.id, label: t.title }))}
+              onChange={(selected) =>
+                setNewTaskDependencies(selected.map((s) => s.value))
+              }
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          </div>
 
-        <button
-          onClick={() => {
-            if (newTaskTitle.trim()) {
-              addTask({
-                title: newTaskTitle,
-                status: "todo",
-                dependencies: newTaskDependencies,
-              });
-              setNewTaskTitle("");
-              setNewTaskDependencies([]);
-            }
-          }}
-        >
-          Add Task
-        </button>
+          <button
+            onClick={handleAddTask}
+            className="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
+          >
+            Add Task
+          </button>
+        </div>
       </div>
     </div>
   );

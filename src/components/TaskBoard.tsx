@@ -1,7 +1,7 @@
 "use client";
-import { Task } from "@/types/types";
+
+import { RelTask, Task } from "@/types/types";
 import TaskCard from "./TaskCard";
-import { useMemo } from "react";
 
 type Props = {
   tasks: Task[];
@@ -20,29 +20,6 @@ export default function TaskBoard({
     "done",
   ];
 
-  const childrenTasksMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-
-    tasks.forEach((t: Task) => {
-      t.dependencies.forEach((depId) => {
-        if (!map[depId]) map[depId] = [];
-        map[depId].push(t.title);
-      });
-    });
-
-    return map;
-  }, [tasks]);
-
-  const parentTasksMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    tasks.forEach((t) => {
-      map[t.id] = t.dependencies
-        .map((depId) => tasks.find((task) => task.id === depId)?.title)
-        .filter(Boolean) as string[];
-    });
-    return map;
-  }, [tasks]);
-
   return (
     <div className="flex gap-4 p-4 overflow-x-auto">
       {statuses.map((status) => (
@@ -53,18 +30,24 @@ export default function TaskBoard({
           <h3 className="font-bold mb-2 text-white capitalize">
             {status.replace("-", " ")}
           </h3>
-          {tasks
-            .filter((t) => t.status === status)
-            .map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onUpdateTask={onUpdateTask}
-                onDeleteTask={onDeleteTask}
-                childrenTaskNames={childrenTasksMap[task.id] || []}
-                parentTaskNames={parentTasksMap[task.id] || []}
-              />
-            ))}
+          <div className="flex flex-col gap-2">
+            {tasks
+              .filter((t) => t.status === status)
+              .map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onUpdateTask={onUpdateTask}
+                  onDeleteTask={onDeleteTask}
+                  childrenTaskNames={task?.childTasks?.map(
+                    (task: RelTask) => task.title
+                  )}
+                  parentTaskNames={task?.parentTasks?.map(
+                    (task: RelTask) => task.title
+                  )}
+                />
+              ))}
+          </div>
         </div>
       ))}
     </div>
