@@ -13,7 +13,7 @@ export type Comment = {
   id: string;
   author: string;
   content: string;
-  createdAt: string;
+  timestamp: string;
 };
 
 export type Project = {
