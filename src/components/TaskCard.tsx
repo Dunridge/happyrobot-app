@@ -22,7 +22,12 @@ export default function TaskCard({
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const statuses: Task["status"][] = ["todo", "in-progress", "done"];
-  console.log("task", task);
+
+  const statusColors: Record<Task["status"], string> = {
+    todo: "bg-gray-200 text-gray-800",
+    "in-progress": "bg-yellow-200 text-yellow-800",
+    done: "bg-green-200 text-green-800",
+  };
 
   const handleSave = () => {
     if (onUpdateTask && title.trim() !== task.title) {
@@ -38,37 +43,44 @@ export default function TaskCard({
   };
 
   return (
-    <div className="flex flex-col cursor-pointer gap-3 p-3 bg-white dark:bg-gray-800 text-white rounded shadow mb-2">
+    <div className="flex flex-col gap-3 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+      {/* Title / Edit */}
       {isEditing ? (
         <div className="flex gap-2 items-center">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="border p-1 flex-1 rounded"
+            className="border border-gray-300 dark:border-gray-600 p-2 rounded flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
           />
           <button
             onClick={handleSave}
-            className="bg-green-500 text-white px-2 py-1 rounded"
+            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
           >
             Save
           </button>
           <button
             onClick={() => setIsEditing(false)}
-            className="bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded"
+            className="bg-gray-300 dark:bg-gray-600 px-3 py-1 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition"
           >
             Cancel
           </button>
         </div>
       ) : (
         <div className="flex justify-between items-center">
-          <span className="cursor-pointer" onClick={() => setIsEditing(true)}>
+          <h3
+            className="text-lg text-white font-semibold cursor-pointer hover:text-blue-500 transition"
+            onClick={() => setIsEditing(true)}
+          >
             {task.title}
-          </span>
+          </h3>
+
           <div className="flex gap-2 items-center">
             <select
               value={task.status}
               onChange={handleStatusChange}
-              className="border rounded p-1 bg-white dark:bg-gray-700"
+              className={`px-2 py-1 rounded font-medium ${
+                statusColors[task.status]
+              } border border-gray-300 dark:border-gray-600`}
             >
               {statuses.map((s) => (
                 <option key={s} value={s}>
@@ -76,10 +88,11 @@ export default function TaskCard({
                 </option>
               ))}
             </select>
+
             {onDeleteTask && (
               <button
                 onClick={() => onDeleteTask(task.id)}
-                className="bg-red-500 text-white px-2 py-1 rounded"
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
               >
                 Delete
               </button>
@@ -88,22 +101,24 @@ export default function TaskCard({
         </div>
       )}
 
-      <div className="flex flex-col gap-1">
+      {/* Dependencies */}
+      <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
         {childrenTaskNames.length > 0 && (
-          <div className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            Children: {childrenTaskNames.join(", ")}
+          <div>
+            <strong>Children:</strong> {childrenTaskNames.join(", ")}
           </div>
         )}
         {parentTaskNames.length > 0 && (
-          <div className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            Parents: {parentTaskNames.join(", ")}
+          <div>
+            <strong>Parents:</strong> {parentTaskNames.join(", ")}
           </div>
         )}
       </div>
 
+      {/* Open Task Link */}
       <Link
         href={`/projects/${task.projectId}/tasks/${task.id}`}
-        className="block p-4 border rounded shadow hover:bg-gray-100"
+        className="mt-2 inline-block text-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition font-medium shadow"
       >
         Open Task
       </Link>

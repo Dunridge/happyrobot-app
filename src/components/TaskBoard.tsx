@@ -20,6 +20,7 @@ export default function TaskBoard({
     "done",
   ];
 
+  // TODO: move these to the BE so that when we pass the objects we can see what is dependant on that task
   const childrenTasksMap = useMemo(() => {
     const map: Record<string, string[]> = {};
 
