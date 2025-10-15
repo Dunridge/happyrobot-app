@@ -1,7 +1,7 @@
 "use client";
-import { Task } from "@/types/types";
+
+import { RelTask, Task } from "@/types/types";
 import TaskCard from "./TaskCard";
-import { useMemo } from "react";
 
 type Props = {
   tasks: Task[];
@@ -19,30 +19,6 @@ export default function TaskBoard({
     "in-progress",
     "done",
   ];
-
-  // TODO: move these to the BE so that when we pass the objects we can see what is dependant on that task
-  const childrenTasksMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-
-    tasks.forEach((t: Task) => {
-      t.dependencies.forEach((depId) => {
-        if (!map[depId]) map[depId] = [];
-        map[depId].push(t.title);
-      });
-    });
-
-    return map;
-  }, [tasks]);
-
-  const parentTasksMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    tasks.forEach((t) => {
-      map[t.id] = t.dependencies
-        .map((depId) => tasks.find((task) => task.id === depId)?.title)
-        .filter(Boolean) as string[];
-    });
-    return map;
-  }, [tasks]);
 
   return (
     <div className="flex gap-4 p-4 overflow-x-auto">
@@ -63,8 +39,12 @@ export default function TaskBoard({
                   task={task}
                   onUpdateTask={onUpdateTask}
                   onDeleteTask={onDeleteTask}
-                  childrenTaskNames={childrenTasksMap[task.id] || []}
-                  parentTaskNames={parentTasksMap[task.id] || []}
+                  childrenTaskNames={task?.childTasks?.map(
+                    (task: RelTask) => task.title
+                  )}
+                  parentTaskNames={task?.parentTasks?.map(
+                    (task: RelTask) => task.title
+                  )}
                 />
               ))}
           </div>

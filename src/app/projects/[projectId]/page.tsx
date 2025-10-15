@@ -21,14 +21,25 @@ export default function ProjectPage() {
       .then(setProject)
       .catch(console.error);
 
+    fetchProjectTasks();
+  }, [projectId]);
+
+  const fetchProjectTasks = async () => {
     fetch(`/api/projects/${projectId}/tasks`)
       .then((res) => res.json())
       .then(setTasks)
       .catch(console.error);
-  }, [projectId]);
+  };
 
-  const addTask = async (task: Omit<Task, "id">) => {
-    const tempTask: Task = { id: crypto.randomUUID(), ...task };
+  const addTask = async (
+    task: Omit<Task, "id" | "parentTasks" | "childTasks">
+  ) => {
+    const tempTask: Task = {
+      id: crypto.randomUUID(),
+      ...task,
+      parentTasks: [],
+      childTasks: [],
+    };
     setTasks((prev) => [...prev, tempTask]);
 
     try {
@@ -44,6 +55,7 @@ export default function ProjectPage() {
     } catch (err) {
       console.error(err);
       setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
+      toast.error("Failed to create task");
     }
   };
 
@@ -86,6 +98,38 @@ export default function ProjectPage() {
     } catch (err) {
       console.error(err);
       setTasks(prevTasks);
+    }
+  };
+
+  // const handleAddTask = () => {
+  //   if (newTaskTitle.trim()) {
+  //     addTask({
+  //       title: newTaskTitle,
+  //       status: "todo",
+  //       dependencies: newTaskDependencies,
+  //       projectId: projectId as string,
+  //     });
+  //     setNewTaskTitle("");
+  //     setNewTaskDependencies([]);
+  //     // fetchProjectTasks();
+  //   }
+  // };
+
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+
+    try {
+      await addTask({
+        title: newTaskTitle,
+        status: "todo",
+        dependencies: newTaskDependencies,
+        projectId: projectId as string,
+      });
+      await fetchProjectTasks();
+      setNewTaskTitle("");
+      setNewTaskDependencies([]);
+    } catch (err) {
+      toast.error("Failed to add task");
     }
   };
 
@@ -144,18 +188,7 @@ export default function ProjectPage() {
           </div>
 
           <button
-            onClick={() => {
-              if (newTaskTitle.trim()) {
-                addTask({
-                  title: newTaskTitle,
-                  status: "todo",
-                  dependencies: newTaskDependencies,
-                  projectId: projectId as string,
-                });
-                setNewTaskTitle("");
-                setNewTaskDependencies([]);
-              }
-            }}
+            onClick={handleAddTask}
             className="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
           >
             Add Task
