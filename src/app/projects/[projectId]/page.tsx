@@ -89,14 +89,8 @@ export default function ProjectPage() {
     }
   };
 
-  // TODO: make the tasks save the status on transition between columns
-
-  // TODO: add optimistic updates for the task dependencies
-  // TODO: if the task is switched between the columns the status disspears
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
-
-    // Create a temporary task for optimistic UI update
     const tempTask: Task = {
       id: crypto.randomUUID(),
       title: newTaskTitle,
@@ -106,12 +100,9 @@ export default function ProjectPage() {
       parentTasks: [],
       childTasks: [],
     };
-
-    // Add temp task to state
     setTasks((prev) => [...prev, tempTask]);
 
     try {
-      // Send request to backend
       const res = await fetch(`/api/projects/${projectId}/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,12 +120,10 @@ export default function ProjectPage() {
 
       const savedTask: Task = await res.json();
 
-      // Replace temporary task with saved task
       setTasks((prev) =>
         prev.map((t) => (t.id === tempTask.id ? savedTask : t))
       );
 
-      // Update parent tasks to include this task as a child
       if (newTaskDependencies.length > 0) {
         setTasks((prev) =>
           prev.map((t) =>
@@ -150,13 +139,10 @@ export default function ProjectPage() {
           )
         );
       }
-
-      // Clear input fields
       setNewTaskTitle("");
       setNewTaskDependencies([]);
     } catch (err) {
       console.error(err);
-      // Rollback optimistic task
       setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
       toast.error("Failed to add task");
     }

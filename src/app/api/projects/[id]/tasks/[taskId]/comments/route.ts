@@ -3,9 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function POST(req: NextRequest, { params }: any) {
-  const resolvedParams = await params; // ✅ await it
+  const resolvedParams = await params;
   const { taskId } = resolvedParams;
-
   const { author, content } = await req.json();
 
   const comment = await prisma.comment.create({

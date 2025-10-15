@@ -61,7 +61,7 @@ server.on("upgrade", (req, socket, head) => {
 });
 
 server.listen(3001, () => {
-  console.log("✅ WS + broadcast server running on port 3001");
+  console.log("WS + broadcast server running on port 3001");
 });
 
 const broadcastToTask = (taskId, data) => {
