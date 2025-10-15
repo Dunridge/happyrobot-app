@@ -31,37 +31,10 @@ export default function ProjectPage() {
       .catch(console.error);
   };
 
-  const addTask = async (
-    task: Omit<Task, "id" | "parentTasks" | "childTasks">
-  ) => {
-    const tempTask: Task = {
-      id: crypto.randomUUID(),
-      ...task,
-      parentTasks: [],
-      childTasks: [],
-    };
-    setTasks((prev) => [...prev, tempTask]);
-
-    try {
-      const res = await fetch(`/api/projects/${projectId}/tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(task),
-      });
-      const savedTask = await res.json();
-      setTasks((prev) =>
-        prev.map((t) => (t.id === tempTask.id ? savedTask : t))
-      );
-    } catch (err) {
-      console.error(err);
-      setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
-      toast.error("Failed to create task");
-    }
-  };
-
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     const prevTask = tasks.find((t) => t.id === taskId);
     if (!prevTask) return;
+
     const updatedTask = { ...prevTask, ...updates };
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
@@ -69,21 +42,35 @@ export default function ProjectPage() {
       const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({
+          ...updatedTask,
+        }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
         setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
         toast.error(errorData.error || "Failed to update task");
-      } else {
-        const savedTask = await res.json();
-        setTasks((prev) => prev.map((t) => (t.id === taskId ? savedTask : t)));
+        return;
       }
+
+      const savedTask: Task = await res.json();
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...updatedTask,
+                ...savedTask,
+                parentTasks: prevTask.parentTasks,
+                childTasks: prevTask.childTasks,
+              }
+            : t
+        )
+      );
     } catch (err) {
       console.error(err);
       setTasks((prev) => prev.map((t) => (t.id === taskId ? prevTask : t)));
-      alert("Network error: failed to update task");
+      toast.error("Network error: failed to update task");
     }
   };
 
@@ -100,6 +87,8 @@ export default function ProjectPage() {
       setTasks(prevTasks);
     }
   };
+
+  // TODO: make the tasks save the status on transition between columns
 
   // TODO: add optimistic updates for the task dependencies
   // TODO: if the task is switched between the columns the status disspears
