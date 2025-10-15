@@ -9,6 +9,9 @@ export async function GET(
 
   const tasks = await prisma.task.findMany({
     where: { projectId: id },
+    include: {
+      comments: true,
+    },
   });
 
   const taskMap = new Map(tasks.map((t) => [t.id, t]));
