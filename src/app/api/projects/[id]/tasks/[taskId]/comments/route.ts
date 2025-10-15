@@ -12,7 +12,6 @@ export async function POST(req: NextRequest, { params }: any) {
     data: { taskId, author, content },
   });
 
-  // Broadcast asynchronously
   fetch("http://localhost:3001/broadcast", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
