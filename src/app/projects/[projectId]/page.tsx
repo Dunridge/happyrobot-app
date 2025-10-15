@@ -101,20 +101,7 @@ export default function ProjectPage() {
     }
   };
 
-  // const handleAddTask = () => {
-  //   if (newTaskTitle.trim()) {
-  //     addTask({
-  //       title: newTaskTitle,
-  //       status: "todo",
-  //       dependencies: newTaskDependencies,
-  //       projectId: projectId as string,
-  //     });
-  //     setNewTaskTitle("");
-  //     setNewTaskDependencies([]);
-  //     // fetchProjectTasks();
-  //   }
-  // };
-
+  // TODO: add optimistic updates for the task dependencies
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
 
