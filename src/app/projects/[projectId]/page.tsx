@@ -103,53 +103,67 @@ export default function ProjectPage() {
         onDeleteTask={deleteTask}
       />
 
-      <div className="mt-4 flex gap-2">
-        <div className="flex flex-col flex-1">
-          <label htmlFor="new-task-title" className="mb-1 font-medium">
-            Task Title
-          </label>
-          <input
-            id="new-task-title"
-            type="text"
-            placeholder="Enter task title"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            className="border p-2 w-full"
-          />
-        </div>
+      <div className="w-full flex justify-center">
+        <div className="mt-6 p-4 max-w-[500px] min-w-[360px] bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
+          {/* Task Title */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="new-task-title"
+              className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+            >
+              Task Title
+            </label>
+            <input
+              id="new-task-title"
+              type="text"
+              placeholder="Enter task title"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
 
-        <div className="flex flex-col flex-1">
-          <label htmlFor="new-task-dependencies" className="mb-1 font-medium">
-            Depends on
-          </label>
-          <Select
-            isMulti
-            options={tasks.map((t) => ({ value: t.id, label: t.title }))}
-            value={tasks
-              .filter((t) => newTaskDependencies.includes(t.id))
-              .map((t) => ({ value: t.id, label: t.title }))}
-            onChange={(selected) => {
-              setNewTaskDependencies(selected.map((s) => s.value));
+          {/* Dependencies */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="new-task-dependencies"
+              className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
+            >
+              Depends on
+            </label>
+            <Select
+              isMulti
+              options={tasks.map((t) => ({ value: t.id, label: t.title }))}
+              value={tasks
+                .filter((t) => newTaskDependencies.includes(t.id))
+                .map((t) => ({ value: t.id, label: t.title }))}
+              onChange={(selected) =>
+                setNewTaskDependencies(selected.map((s) => s.value))
+              }
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          {/* Add Task Button */}
+          <button
+            onClick={() => {
+              if (newTaskTitle.trim()) {
+                addTask({
+                  title: newTaskTitle,
+                  status: "todo",
+                  dependencies: newTaskDependencies,
+                  projectId: projectId as string,
+                });
+                setNewTaskTitle("");
+                setNewTaskDependencies([]);
+              }
             }}
-          />
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
+          >
+            Add Task
+          </button>
         </div>
-
-        <button
-          onClick={() => {
-            if (newTaskTitle.trim()) {
-              addTask({
-                title: newTaskTitle,
-                status: "todo",
-                dependencies: newTaskDependencies,
-                projectId: projectId as string,
-              });
-              setNewTaskTitle("");
-              setNewTaskDependencies([]);
-            }
-          }}
-        >
-          Add Task
-        </button>
       </div>
     </div>
   );

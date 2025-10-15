@@ -54,18 +54,20 @@ export default function TaskBoard({
           <h3 className="font-bold mb-2 text-white capitalize">
             {status.replace("-", " ")}
           </h3>
-          {tasks
-            .filter((t) => t.status === status)
-            .map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onUpdateTask={onUpdateTask}
-                onDeleteTask={onDeleteTask}
-                childrenTaskNames={childrenTasksMap[task.id] || []}
-                parentTaskNames={parentTasksMap[task.id] || []}
-              />
-            ))}
+          <div className="flex flex-col gap-2">
+            {tasks
+              .filter((t) => t.status === status)
+              .map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onUpdateTask={onUpdateTask}
+                  onDeleteTask={onDeleteTask}
+                  childrenTaskNames={childrenTasksMap[task.id] || []}
+                  parentTaskNames={parentTasksMap[task.id] || []}
+                />
+              ))}
+          </div>
         </div>
       ))}
     </div>
