@@ -2,7 +2,7 @@
 
 import { Task, RelTask } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
 
@@ -38,7 +38,8 @@ export default function TaskPage() {
     }
   };
 
-  useTaskWebSocket(taskId, (msg) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWSMessage = useCallback((msg: any) => {
     switch (msg.type) {
       case "new-comment":
         setTask((prev) =>
@@ -55,7 +56,9 @@ export default function TaskPage() {
         setTask((prev) => (prev ? { ...prev, ...msg.payload } : prev));
         break;
     }
-  });
+  }, []);
+
+  useTaskWebSocket(taskId, handleWSMessage);
 
   useEffect(() => {
     if (!projectId || !taskId) return;
