@@ -58,7 +58,22 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(task, { status: 201 });
+    const allTasks = await prisma.task.findMany({ where: { projectId: id } });
+    const taskMap = new Map(allTasks.map((t) => [t.id, t]));
+
+    const parents = (task.dependencies ?? [])
+      .map((depId) => taskMap.get(depId))
+      .filter(Boolean)
+      .map((p) => ({ id: p!.id, title: p!.title }));
+
+    const children = allTasks
+      .filter((t) => (t.dependencies ?? []).includes(task.id))
+      .map((c) => ({ id: c.id, title: c.title }));
+
+    return NextResponse.json(
+      { ...task, parentTasks: parents, childTasks: children },
+      { status: 201 }
+    );
   } catch (err) {
     console.error("Error creating task:", err);
     return NextResponse.json(

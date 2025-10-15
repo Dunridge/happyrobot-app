@@ -102,20 +102,72 @@ export default function ProjectPage() {
   };
 
   // TODO: add optimistic updates for the task dependencies
+  // TODO: if the task is switched between the columns the status disspears
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
 
+    // Create a temporary task for optimistic UI update
+    const tempTask: Task = {
+      id: crypto.randomUUID(),
+      title: newTaskTitle,
+      status: "todo",
+      projectId: projectId as string,
+      dependencies: newTaskDependencies,
+      parentTasks: [],
+      childTasks: [],
+    };
+
+    // Add temp task to state
+    setTasks((prev) => [...prev, tempTask]);
+
     try {
-      await addTask({
-        title: newTaskTitle,
-        status: "todo",
-        dependencies: newTaskDependencies,
-        projectId: projectId as string,
+      // Send request to backend
+      const res = await fetch(`/api/projects/${projectId}/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTaskTitle,
+          status: "todo",
+          dependencies: newTaskDependencies,
+          projectId: projectId,
+        }),
       });
-      await fetchProjectTasks();
+
+      if (!res.ok) {
+        throw new Error("Failed to create task");
+      }
+
+      const savedTask: Task = await res.json();
+
+      // Replace temporary task with saved task
+      setTasks((prev) =>
+        prev.map((t) => (t.id === tempTask.id ? savedTask : t))
+      );
+
+      // Update parent tasks to include this task as a child
+      if (newTaskDependencies.length > 0) {
+        setTasks((prev) =>
+          prev.map((t) =>
+            newTaskDependencies.includes(t.id)
+              ? {
+                  ...t,
+                  childTasks: [
+                    ...t.childTasks,
+                    { id: savedTask.id, title: savedTask.title },
+                  ],
+                }
+              : t
+          )
+        );
+      }
+
+      // Clear input fields
       setNewTaskTitle("");
       setNewTaskDependencies([]);
     } catch (err) {
+      console.error(err);
+      // Rollback optimistic task
+      setTasks((prev) => prev.filter((t) => t.id !== tempTask.id));
       toast.error("Failed to add task");
     }
   };
