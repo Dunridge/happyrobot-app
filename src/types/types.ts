@@ -6,6 +6,14 @@ export type Task = {
   dependencies: string[];
   childTasks: RelTask[];
   parentTasks: RelTask[];
+  comments?: Comment[];
+};
+
+export type Comment = {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
 };
 
 export type Project = {

@@ -22,6 +22,7 @@ export default function ProjectPage() {
       .catch(console.error);
 
     fetchProjectTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const fetchProjectTasks = async () => {

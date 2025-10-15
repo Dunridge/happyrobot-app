@@ -4,6 +4,7 @@ import { Task, RelTask } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
 
 export default function TaskPage() {
   const params = useParams();
@@ -12,6 +13,49 @@ export default function TaskPage() {
   const taskId = params.taskId as string;
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState("");
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+
+    const commentPayload = {
+      taskId: task!.id,
+      content: newComment,
+      author: "Anonymous",
+    };
+
+    try {
+      await fetch(`/api/projects/${projectId}/tasks/${taskId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(commentPayload),
+      });
+
+      setNewComment("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add comment");
+    }
+  };
+
+  useTaskWebSocket(taskId, (msg) => {
+    switch (msg.type) {
+      case "new-comment":
+        setTask((prev) =>
+          prev
+            ? {
+                ...prev,
+                comments: [...(prev.comments || []), msg.payload.comment],
+              }
+            : prev
+        );
+        break;
+
+      case "task-updated":
+        setTask((prev) => (prev ? { ...prev, ...msg.payload } : prev));
+        break;
+    }
+  });
 
   useEffect(() => {
     if (!projectId || !taskId) return;
@@ -57,6 +101,36 @@ export default function TaskPage() {
           {task.childTasks.map((c: RelTask) => c.title).join(", ")}
         </div>
       )}
+
+      <div className="mt-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Write a comment..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="flex-1 p-2 border rounded"
+        />
+        <button
+          onClick={handleAddComment}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Send
+        </button>
+      </div>
+
+      <div className="mt-6">
+        <h2 className="font-bold mb-2">Comments</h2>
+        <ul>
+          {task.comments?.map((c) => (
+            <li key={c.id} className="mb-1">
+              <strong>{c.author}:</strong> {c.content}{" "}
+              <span className="text-gray-400 text-sm">
+                ({new Date(c.createdAt).toLocaleTimeString()})
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

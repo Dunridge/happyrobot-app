@@ -9,6 +9,11 @@ Stack:
 3. Database – PostgreSQL
 4. Real-time updates – WebSockets
 
+# How to start 
+
+1. `pnpm run build` -> `pnpm run dev`
+2. `node server.js` (runs on http://localhost:3001)
+
 # Collaborative Task Management System - Project Brief
 
 ## Objectives
