@@ -113,7 +113,8 @@ export default function TaskPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-6">
+      {/* TODO: add the styling here according to other pages  */}
+      <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
           placeholder="Write a comment..."
@@ -123,7 +124,7 @@ export default function TaskPage() {
         />
         <button
           onClick={handleAddComment}
-          className="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition font-medium"
+          className="h-[32px] cursor-pointer font-sans text-sm leading-6 bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
         >
           Send
         </button>
