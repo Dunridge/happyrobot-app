@@ -52,7 +52,7 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold">Projects</h1>
 
       <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">Add New Project</h2>
+        <h2 className="text-white text-xl font-semibold">Add New Project</h2>
 
         <Formik
           initialValues={{ name: "", description: "" }}
