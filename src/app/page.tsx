@@ -47,6 +47,26 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(errorData.error || "Failed to delete project");
+        return;
+      }
+
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      toast.success("Project deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error: failed to delete project");
+    }
+  };
+
   return (
     <div className="p-6 max-w-4xl mx-auto flex flex-col gap-8">
       <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
@@ -110,7 +130,10 @@ export default function DashboardPage() {
         </Formik>
       </div>
 
-      <ProjectList projects={projects} />
+      <ProjectList
+        projects={projects}
+        handleDeleteProject={handleDeleteProject}
+      />
     </div>
   );
 }
