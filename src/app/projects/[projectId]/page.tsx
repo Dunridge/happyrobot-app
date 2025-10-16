@@ -6,6 +6,7 @@ import TaskBoard from "@/components/TaskBoard";
 import toast from "react-hot-toast";
 import Select from "react-select";
 import { Project, Task } from "@/types/types";
+import Loader from "@/components/Loader";
 
 export default function ProjectPage() {
   const router = useRouter();
@@ -149,8 +150,7 @@ export default function ProjectPage() {
     }
   };
 
-  // TODO: add a spinner loader here
-  if (!project) return <div>Loading project...</div>;
+  if (!project) return <Loader />;
 
   return (
     <div className="p-6 mx-auto flex flex-col gap-8">

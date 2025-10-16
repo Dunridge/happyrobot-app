@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
+import Loader from "@/components/Loader";
 
 // TODO: figure out how to add the author of the comment if we don't have logins for users
 export default function TaskPage() {
@@ -75,7 +76,7 @@ export default function TaskPage() {
       .finally(() => setLoading(false));
   }, [projectId, taskId]);
 
-  if (loading) return <div>Loading task...</div>;
+  if (loading) return <Loader />;
   if (!task) return <div>Task not found</div>;
 
   return (
