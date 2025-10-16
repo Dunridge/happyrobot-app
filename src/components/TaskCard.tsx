@@ -3,6 +3,8 @@
 import { Task } from "@/types/types";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import trashIcon from "@/assets/trash.svg";
 
 type Props = {
   task: Task;
@@ -81,12 +83,14 @@ export default function TaskCard({
             </select>
 
             {onDeleteTask && (
-              <button
+              <Image
                 onClick={() => onDeleteTask(task.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-              >
-                Delete
-              </button>
+                className="cursor-pointer"
+                width={22}
+                height={22}
+                src={trashIcon}
+                alt="Trash icon"
+              />
             )}
           </div>
         </div>
