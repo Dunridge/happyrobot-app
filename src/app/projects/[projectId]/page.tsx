@@ -168,7 +168,7 @@ export default function ProjectPage() {
         <p className="text-gray-700">{project.description}</p>
       )}
 
-      {/* TODO: update the styles here next  */}
+      {/* TODO: update the styles here next (...) */}
       <TaskBoard
         tasks={tasks}
         onUpdateTask={updateTask}
@@ -177,12 +177,12 @@ export default function ProjectPage() {
 
       {/* Add Task Card */}
       <div className="w-full flex justify-center mt-8">
-        <div className="p-6 max-w-md w-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col gap-6">
+        <div className="p-6 border border-gray-800 max-w-md w-full bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col gap-6">
           {/* Task Title Input */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="new-task-title"
-              className="font-medium text-gray-700 dark:text-gray-200"
+              className="font-medium text-gray-700"
             >
               Task Title
             </label>
@@ -192,7 +192,7 @@ export default function ProjectPage() {
               placeholder="Enter task title"
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="w-full p-3 rounded-lg border border-gray-700 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full p-3 rounded-lg border border-gray-700 dark:border-gray-600 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
@@ -200,7 +200,7 @@ export default function ProjectPage() {
           <div className="flex flex-col gap-2">
             <label
               htmlFor="new-task-dependencies"
-              className="font-medium text-gray-700 dark:text-gray-200"
+              className="font-medium text-gray-700"
             >
               Depends on
             </label>
@@ -221,7 +221,7 @@ export default function ProjectPage() {
           {/* Add Task Button */}
           <button
             onClick={handleAddTask}
-            className="w-full h-[40px] bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold rounded-xl shadow-md hover:scale-105 hover:shadow-lg active:scale-95 transition transform"
+            className="w-full h-[32px] cursor-pointer font-sans text-sm leading-6 self-start bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
           >
             Add Task
           </button>
