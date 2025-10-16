@@ -156,7 +156,7 @@ export default function ProjectPage() {
     <div className="p-6 mx-auto flex flex-col gap-8">
       <button
         onClick={() => router.back()}
-        className="mb-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+        className="mb-6 cursor-pointer inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
       >
         ← Back
       </button>
