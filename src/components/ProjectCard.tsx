@@ -7,18 +7,31 @@ interface Props {
 
 export default function ProjectCard({ project }: Props) {
   return (
-    <div className="flex flex-col gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-500 transition">
+    <div className="group flex flex-col gap-3 rounded-2xl bg-gradient-to-b from-white to-gray-50 border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 p-6 cursor-pointer">
+      <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
         {project.name}
       </h2>
+
       {project.description && (
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">
           {project.description}
         </p>
       )}
-      <Link href={`/projects/${project.id}`}>
-        <span className="w-full mt-2 inline-block text-center bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition font-medium shadow">
+
+      <Link href={`/projects/${project.id}`} className="mt-4">
+        <span className="inline-flex items-center justify-center w-full text-sm font-medium text-blue-600 hover:text-blue-700 transition-all group-hover:gap-2">
           Open Project
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+          >
+            <path
+              d="M9.33464 12L8.4013 11.0333L10.768 8.66667H2.66797V7.33333H10.768L8.4013 4.96667L9.33464 4L13.3346 8L9.33464 12Z"
+              fill="currentColor"
+            />
+          </svg>
         </span>
       </Link>
     </div>
