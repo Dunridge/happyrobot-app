@@ -19,7 +19,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    // Task table has a foreign key projectId pointing to Project
+    // need to delete the tasks and the comments of the project first (could be solved by adding @relation(onDelete: Cascade) in Prisma)
     await prisma.comment.deleteMany({
       where: {
         task: {
@@ -28,7 +28,6 @@ export async function DELETE(
       },
     });
     await prisma.task.deleteMany({ where: { projectId: id } });
-
     await prisma.project.delete({
       where: { id },
     });
