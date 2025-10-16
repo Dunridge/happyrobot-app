@@ -25,9 +25,9 @@ export default function TaskBoard({
       {statuses.map((status) => (
         <div
           key={status}
-          className="flex-1 min-w-[250px] bg-gray-100 dark:bg-gray-700 p-2 rounded"
+          className="flex-1 min-w-[250px] bg-gray-100 border border-gray-700 p-2 rounded"
         >
-          <h3 className="font-bold mb-2 text-white capitalize">
+          <h3 className="font-bold mb-2 text-gray-800 capitalize">
             {status.replace("-", " ")}
           </h3>
           <div className="flex flex-col gap-2">

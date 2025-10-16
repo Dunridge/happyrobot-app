@@ -23,12 +23,6 @@ export default function TaskCard({
   const [title, setTitle] = useState(task.title);
   const statuses: Task["status"][] = ["todo", "in-progress", "done"];
 
-  const statusColors: Record<Task["status"], string> = {
-    todo: "bg-gray-200 text-gray-800",
-    "in-progress": "bg-yellow-200 text-yellow-800",
-    done: "bg-green-200 text-green-800",
-  };
-
   const handleSave = () => {
     if (onUpdateTask && title.trim() !== task.title) {
       onUpdateTask(task.id, { title });
@@ -43,7 +37,7 @@ export default function TaskCard({
   };
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+    <div className="flex flex-col gap-3 p-4 bg-white border border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
       {isEditing ? (
         <div className="flex gap-2 items-center">
           <input
@@ -67,7 +61,7 @@ export default function TaskCard({
       ) : (
         <div className="flex justify-between items-center">
           <h3
-            className="text-lg text-white font-semibold cursor-pointer hover:text-blue-500 transition"
+            className="text-lg text-gray-900 font-semibold cursor-pointer hover:text-blue-500 transition"
             onClick={() => setIsEditing(true)}
           >
             {task.title}
@@ -77,9 +71,7 @@ export default function TaskCard({
             <select
               value={task.status}
               onChange={handleStatusChange}
-              className={`px-2 py-1 rounded font-medium ${
-                statusColors[task.status]
-              } border border-gray-300 dark:border-gray-600`}
+              className="px-2 py-1 rounded font-medium border border-gray-300 dark:border-gray-600"
             >
               {statuses.map((s) => (
                 <option key={s} value={s}>
@@ -100,8 +92,7 @@ export default function TaskCard({
         </div>
       )}
 
-      {/* Dependencies */}
-      <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
+      <div className="flex flex-col gap-1 text-sm text-gray-900">
         {!!childrenTaskNames && childrenTaskNames?.length > 0 && (
           <div>
             <strong>Children:</strong> {childrenTaskNames.join(", ")}
@@ -114,10 +105,9 @@ export default function TaskCard({
         )}
       </div>
 
-      {/* Open Task Link */}
       <Link
         href={`/projects/${task.projectId}/tasks/${task.id}`}
-        className="mt-2 inline-block text-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition font-medium shadow"
+        className="w-full h-[32px] cursor-pointer font-sans text-sm font-medium text-white px-6 rounded-md bg-[#0c0c0c] flex items-center justify-center transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
       >
         Open Task
       </Link>
