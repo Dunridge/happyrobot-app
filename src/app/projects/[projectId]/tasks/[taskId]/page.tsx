@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
 import Loader from "@/components/Loader";
 
-// TODO: figure out how to add the author of the comment if we don't have logins for users
 export default function TaskPage() {
   const params = useParams();
   const router = useRouter();
@@ -80,10 +79,10 @@ export default function TaskPage() {
   if (!task) return <div>Task not found</div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="w-full p-6">
       <button
         onClick={() => router.back()}
-        className="mb-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
+        className="mb-4 cursor-pointer inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
       >
         ← Back
       </button>
@@ -120,7 +119,7 @@ export default function TaskPage() {
           placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="h-[32px] flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           onClick={handleAddComment}

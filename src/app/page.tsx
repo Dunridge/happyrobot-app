@@ -5,6 +5,7 @@ import { Project } from "@/types/types";
 import toast from "react-hot-toast";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import Loader from "@/components/Loader";
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Project name is required"),
@@ -13,12 +14,14 @@ const validationSchema = Yup.object({
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/projects")
       .then((res) => res.json())
       .then(setProjects)
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAddProject = async (values: {
@@ -71,10 +74,14 @@ export default function DashboardPage() {
     <div className="w-full flex flex-col gap-8 mt-8 p-6">
       <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
 
-      <ProjectList
-        projects={projects}
-        handleDeleteProject={handleDeleteProject}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <ProjectList
+          projects={projects}
+          handleDeleteProject={handleDeleteProject}
+        />
+      )}
 
       <div className="flex flex-col gap-14 p-8 rounded-2xl bg-white border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
