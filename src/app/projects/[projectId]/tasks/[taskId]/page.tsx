@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
+import Loader from "@/components/Loader";
 
 // TODO: figure out how to add the author of the comment if we don't have logins for users
 export default function TaskPage() {
@@ -75,7 +76,7 @@ export default function TaskPage() {
       .finally(() => setLoading(false));
   }, [projectId, taskId]);
 
-  if (loading) return <div>Loading task...</div>;
+  if (loading) return <Loader />;
   if (!task) return <div>Task not found</div>;
 
   return (
@@ -112,7 +113,8 @@ export default function TaskPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-6">
+      {/* TODO: add the styling here according to other pages  */}
+      <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
           placeholder="Write a comment..."
@@ -122,7 +124,7 @@ export default function TaskPage() {
         />
         <button
           onClick={handleAddComment}
-          className="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition font-medium"
+          className="h-[32px] cursor-pointer font-sans text-sm leading-6 bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
         >
           Send
         </button>

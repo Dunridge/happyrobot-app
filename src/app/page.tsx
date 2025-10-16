@@ -48,11 +48,13 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto flex flex-col gap-6">
-      <h1 className="text-3xl font-bold">Projects</h1>
+    <div className="p-6 max-w-4xl mx-auto flex flex-col gap-8">
+      <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
 
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">Add New Project</h2>
+      <div className="p-8 rounded-2xl bg-gradient-to-b from-gray-50 to-white border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          Add New Project
+        </h2>
 
         <Formik
           initialValues={{ name: "", description: "" }}
@@ -62,16 +64,16 @@ export default function DashboardPage() {
           }}
         >
           {({ isSubmitting }) => (
-            <Form className="flex flex-col gap-4">
+            <Form className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label className="font-medium text-gray-700 dark:text-gray-200">
+                <label className="font-medium text-gray-700">
                   Project Name
                 </label>
                 <Field
                   type="text"
                   name="name"
                   placeholder="Enter project name"
-                  className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-lg border border-gray-700 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 />
                 <ErrorMessage
                   name="name"
@@ -81,14 +83,13 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="font-medium text-gray-700 dark:text-gray-200">
-                  Description
-                </label>
+                <label className="font-medium text-gray-700">Description</label>
                 <Field
                   as="textarea"
                   name="description"
                   placeholder="Enter project description (optional)"
-                  className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-3 rounded-lg border border-gray-700 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  rows={3}
                 />
                 <ErrorMessage
                   name="description"
@@ -100,7 +101,7 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="self-start bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition font-medium shadow"
+                className="h-[32px] cursor-pointer font-sans text-sm leading-6 self-start bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
               >
                 Add Project
               </button>
