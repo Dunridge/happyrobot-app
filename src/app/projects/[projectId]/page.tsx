@@ -154,7 +154,6 @@ export default function ProjectPage() {
 
   return (
     <div className="p-6 mx-auto flex flex-col gap-8">
-      {/* Back Button */}
       <button
         onClick={() => router.back()}
         className="mb-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
@@ -162,63 +161,63 @@ export default function ProjectPage() {
         ← Back
       </button>
 
-      {/* Project Title & Description */}
       <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
       {project.description && (
         <p className="text-gray-700">{project.description}</p>
       )}
 
-      {/* TODO: update the styles here next (...) */}
       <TaskBoard
         tasks={tasks}
         onUpdateTask={updateTask}
         onDeleteTask={deleteTask}
       />
 
-      {/* Add Task Card */}
-      <div className="w-full flex justify-center mt-8">
-        <div className="p-6 border border-gray-800 max-w-md w-full bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col gap-6">
-          {/* Task Title Input */}
+      <div className="w-full flex flex-col gap-8 mt-8">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Add task to project
+        </h2>
+
+        <div className="flex flex-col gap-14">
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="new-task-title"
-              className="font-medium text-gray-700"
-            >
-              Task Title
-            </label>
-            <input
-              id="new-task-title"
-              type="text"
-              placeholder="Enter task title"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="w-full p-3 rounded-lg border border-gray-700 dark:border-gray-600 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            />
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="new-task-title"
+                className="font-medium text-gray-700"
+              >
+                Task Title
+              </label>
+              <input
+                id="new-task-title"
+                type="text"
+                placeholder="Enter task title"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                className="w-full h-9 p-3 rounded-lg border border-gray-700 dark:border-gray-600 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="new-task-dependencies"
+                className="font-medium text-gray-700"
+              >
+                Depends on
+              </label>
+              <Select
+                isMulti
+                options={tasks.map((t) => ({ value: t.id, label: t.title }))}
+                value={tasks
+                  .filter((t) => newTaskDependencies.includes(t.id))
+                  .map((t) => ({ value: t.id, label: t.title }))}
+                onChange={(selected) =>
+                  setNewTaskDependencies(selected.map((s) => s.value))
+                }
+                className="react-select-container"
+                classNamePrefix="react-select"
+              />
+            </div>
           </div>
 
-          {/* Task Dependencies */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="new-task-dependencies"
-              className="font-medium text-gray-700"
-            >
-              Depends on
-            </label>
-            <Select
-              isMulti
-              options={tasks.map((t) => ({ value: t.id, label: t.title }))}
-              value={tasks
-                .filter((t) => newTaskDependencies.includes(t.id))
-                .map((t) => ({ value: t.id, label: t.title }))}
-              onChange={(selected) =>
-                setNewTaskDependencies(selected.map((s) => s.value))
-              }
-              className="react-select-container"
-              classNamePrefix="react-select"
-            />
-          </div>
-
-          {/* Add Task Button */}
           <button
             onClick={handleAddTask}
             className="w-full h-[32px] cursor-pointer font-sans text-sm leading-6 self-start bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
@@ -229,72 +228,4 @@ export default function ProjectPage() {
       </div>
     </div>
   );
-
-  // return (
-  //   <div className="p-4">
-  //     <button
-  //       onClick={() => router.back()}
-  //       className="mb-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
-  //     >
-  //       ← Back
-  //     </button>
-  //     <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
-  //     {project.description && <p className="mb-4">{project.description}</p>}
-
-  //     <TaskBoard
-  //       tasks={tasks}
-  //       onUpdateTask={updateTask}
-  //       onDeleteTask={deleteTask}
-  //     />
-
-  //     <div className="w-full flex justify-center">
-  //       <div className="mt-6 p-4 max-w-[500px] min-w-[360px] bg-white dark:bg-gray-800 rounded-xl shadow-md flex flex-col gap-4">
-  //         <div className="flex flex-col">
-  //           <label
-  //             htmlFor="new-task-title"
-  //             className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
-  //           >
-  //             Task Title
-  //           </label>
-  //           <input
-  //             id="new-task-title"
-  //             type="text"
-  //             placeholder="Enter task title"
-  //             value={newTaskTitle}
-  //             onChange={(e) => setNewTaskTitle(e.target.value)}
-  //             className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
-  //           />
-  //         </div>
-
-  //         <div className="flex flex-col">
-  //           <label
-  //             htmlFor="new-task-dependencies"
-  //             className="mb-2 font-semibold text-gray-700 dark:text-gray-200"
-  //           >
-  //             Depends on
-  //           </label>
-  //           <Select
-  //             isMulti
-  //             options={tasks.map((t) => ({ value: t.id, label: t.title }))}
-  //             value={tasks
-  //               .filter((t) => newTaskDependencies.includes(t.id))
-  //               .map((t) => ({ value: t.id, label: t.title }))}
-  //             onChange={(selected) =>
-  //               setNewTaskDependencies(selected.map((s) => s.value))
-  //             }
-  //             className="react-select-container"
-  //             classNamePrefix="react-select"
-  //           />
-  //         </div>
-
-  //         <button
-  //           onClick={handleAddTask}
-  //           className="w-full bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition shadow self-start"
-  //         >
-  //           Add Task
-  //         </button>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 }
