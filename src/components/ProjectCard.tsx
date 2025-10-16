@@ -1,16 +1,30 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
+import trashIcon from "@/assets/trash.svg";
 
-interface Props {
+type Props = {
   project: { id: string; name: string; description?: string };
-}
+  handleDeleteProject: () => void;
+};
 
-export default function ProjectCard({ project }: Props) {
+export default function ProjectCard({ project, handleDeleteProject }: Props) {
   return (
     <div className="group flex flex-col gap-3 rounded-2xl bg-gradient-to-b from-white to-gray-50 border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 p-6 cursor-pointer">
-      <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-        {project.name}
-      </h2>
+      <div className="flex justify-between">
+        <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+          {project.name}
+        </h2>
+
+        <Image
+          onClick={handleDeleteProject}
+          className="cursor-pointer"
+          width={22}
+          height={22}
+          src={trashIcon}
+          alt="Trash icon"
+        />
+      </div>
 
       {project.description && (
         <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">

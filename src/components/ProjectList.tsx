@@ -7,15 +7,20 @@ interface Project {
   description?: string;
 }
 
-interface Props {
+type Props = {
   projects: Project[];
-}
+  handleDeleteProject: (projectId: string) => Promise<void>;
+};
 
-export default function ProjectList({ projects }: Props) {
+export default function ProjectList({ projects, handleDeleteProject }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} />
+        <ProjectCard
+          key={project.id}
+          project={project}
+          handleDeleteProject={() => handleDeleteProject(project.id)}
+        />
       ))}
     </div>
   );
