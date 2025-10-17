@@ -1,35 +1,63 @@
-"use client";
-
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Task } from "@/types/types";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useMemo, useRef, useState } from "react";
-import ConfirmModal from "./ConfirmModal";
 import TaskCard from "./TaskCard";
+import ConfirmModal from "./ConfirmModal";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
-type Props = {
-  tasks: Task[];
+export function VirtualTaskRow({
+  task,
+  measure,
+  onUpdateTask,
+  setDeleteTaskId,
+  top,
+}: {
+  task: Task;
+  measure: (el: HTMLDivElement) => void;
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
-  onDeleteTask?: (taskId: string) => void;
-};
+  setDeleteTaskId: (id: string) => void;
+  top: number;
+}) {
+  const rowRef = useRef<HTMLDivElement>(null);
 
-function TaskColumn({
+  useLayoutEffect(() => {
+    if (rowRef.current) measure(rowRef.current);
+  }, [task, measure]);
+
+  return (
+    <div
+      ref={rowRef}
+      style={{
+        position: "absolute",
+        width: "100%",
+        transform: `translateY(${top}px)`,
+      }}
+    >
+      <TaskCard
+        task={task}
+        onUpdateTask={onUpdateTask}
+        onDeleteTask={() => setDeleteTaskId(task.id)}
+        childrenTaskNames={task.childTasks?.map((t) => t.title)}
+        parentTaskNames={task.parentTasks?.map((t) => t.title)}
+      />
+    </div>
+  );
+}
+
+export function TaskColumn({
   tasks,
   status,
   onUpdateTask,
-  // onDeleteTask,
   setDeleteTaskId,
 }: {
   tasks: Task[];
   status: "todo" | "in-progress" | "done";
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
-  onDeleteTask?: (taskId: string) => void;
   setDeleteTaskId: (id: string) => void;
 }) {
   const filteredTasks = useMemo(
     () => tasks.filter((t) => t.status === status),
     [tasks, status]
   );
-
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
@@ -37,7 +65,6 @@ function TaskColumn({
     getScrollElement: () => parentRef.current,
     estimateSize: () => 150, // initial guess
     overscan: 5,
-    // measureElement: (el) => el.getBoundingClientRect().height, // dynamically measure height
   });
 
   return (
@@ -53,30 +80,17 @@ function TaskColumn({
             position: "relative",
           }}
         >
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          {rowVirtualizer.getVirtualItems().map((virtualRow: any) => {
             const task = filteredTasks[virtualRow.index];
             return (
-              <div
+              <VirtualTaskRow
                 key={task.id}
-                ref={(el) => {
-                  if (el) rowVirtualizer.measureElement(el);
-                }}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  transform: `translateY(${virtualRow.start}px)`,
-                }}
-              >
-                <TaskCard
-                  task={task}
-                  onUpdateTask={onUpdateTask}
-                  onDeleteTask={() => setDeleteTaskId(task.id)}
-                  childrenTaskNames={task.childTasks?.map((t) => t.title)}
-                  parentTaskNames={task.parentTasks?.map((t) => t.title)}
-                />
-              </div>
+                task={task}
+                measure={rowVirtualizer.measureElement}
+                onUpdateTask={onUpdateTask}
+                setDeleteTaskId={setDeleteTaskId}
+                top={virtualRow.start}
+              />
             );
           })}
         </div>
@@ -89,7 +103,11 @@ export default function TaskBoard({
   tasks,
   onUpdateTask,
   onDeleteTask,
-}: Props) {
+}: {
+  tasks: Task[];
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+  onDeleteTask?: (taskId: string) => void;
+}) {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
   const handleConfirmDelete = () => {
@@ -123,7 +141,6 @@ export default function TaskBoard({
             tasks={tasks}
             status={status}
             onUpdateTask={onUpdateTask}
-            onDeleteTask={onDeleteTask}
             setDeleteTaskId={setDeleteTaskId}
           />
         ))}
