@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Loader from "@/components/Loader";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Project name is required"),
@@ -15,6 +16,7 @@ const validationSchema = Yup.object({
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -70,6 +72,19 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDeleteClick = (projectId: string) => {
+    setDeleteProjectId(projectId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteProjectId) return;
+
+    await handleDeleteProject(deleteProjectId);
+    setDeleteProjectId(null);
+  };
+
+  const handleCancelDelete = () => setDeleteProjectId(null);
+
   return (
     <div className="w-full flex flex-col gap-8 mt-8 p-6">
       <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
@@ -79,9 +94,17 @@ export default function DashboardPage() {
       ) : (
         <ProjectList
           projects={projects}
-          handleDeleteProject={handleDeleteProject}
+          handleDeleteProject={handleDeleteClick}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteProjectId}
+        title="Delete Project"
+        description="Are you sure you want to delete this project? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
 
       <div className="flex flex-col gap-14 p-8 rounded-2xl bg-white border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
