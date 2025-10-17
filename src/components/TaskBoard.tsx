@@ -1,21 +1,117 @@
-"use client";
-
-import { RelTask, Task } from "@/types/types";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Task } from "@/types/types";
 import TaskCard from "./TaskCard";
 import ConfirmModal from "./ConfirmModal";
-import { useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
-type Props = {
-  tasks: Task[];
+export function VirtualTaskRow({
+  task,
+  measure,
+  onUpdateTask,
+  setDeleteTaskId,
+  top,
+}: {
+  task: Task;
+  measure: (el: HTMLDivElement) => void;
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
-  onDeleteTask?: (taskId: string) => void;
-};
+  setDeleteTaskId: (id: string) => void;
+  top: number;
+}) {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (rowRef.current) measure(rowRef.current);
+  }, [task, measure]);
+
+  return (
+    <div
+      ref={rowRef}
+      style={{
+        position: "absolute",
+        width: "100%",
+        transform: `translateY(${top}px)`,
+      }}
+    >
+      <TaskCard
+        task={task}
+        onUpdateTask={onUpdateTask}
+        onDeleteTask={() => setDeleteTaskId(task.id)}
+        childrenTaskNames={task.childTasks?.map((t) => t.title)}
+        parentTaskNames={task.parentTasks?.map((t) => t.title)}
+      />
+    </div>
+  );
+}
+
+export function TaskColumn({
+  tasks,
+  status,
+  onUpdateTask,
+  setDeleteTaskId,
+}: {
+  tasks: Task[];
+  status: "todo" | "in-progress" | "done";
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+  setDeleteTaskId: (id: string) => void;
+}) {
+  const filteredTasks = useMemo(
+    () => tasks.filter((t) => t.status === status),
+    [tasks, status]
+  );
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredTasks.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 175,
+    overscan: 5,
+    measureElement: (element) => element.getBoundingClientRect().height,
+  });
+
+  return (
+    <div className="flex-1 min-w-[250px] bg-gray-100 border border-gray-700 p-2 rounded">
+      <h3 className="font-bold mb-2 text-gray-800 capitalize">
+        {status.replace("-", " ")}
+      </h3>
+
+      <div ref={parentRef} className="h-[800px] overflow-auto relative">
+        <div
+          style={{
+            height: rowVirtualizer.getTotalSize(),
+            position: "relative",
+          }}
+        >
+          {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rowVirtualizer.getVirtualItems().map((virtualRow: any) => {
+              const task = filteredTasks[virtualRow.index];
+              return (
+                <VirtualTaskRow
+                  key={task.id}
+                  task={task}
+                  measure={rowVirtualizer.measureElement}
+                  onUpdateTask={onUpdateTask}
+                  setDeleteTaskId={setDeleteTaskId}
+                  top={virtualRow.start}
+                />
+              );
+            })
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TaskBoard({
   tasks,
   onUpdateTask,
   onDeleteTask,
-}: Props) {
+}: {
+  tasks: Task[];
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+  onDeleteTask?: (taskId: string) => void;
+}) {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
   const handleConfirmDelete = () => {
@@ -24,10 +120,7 @@ export default function TaskBoard({
       setDeleteTaskId(null);
     }
   };
-
-  const handleCancelDelete = () => {
-    setDeleteTaskId(null);
-  };
+  const handleCancelDelete = () => setDeleteTaskId(null);
 
   const statuses: ("todo" | "in-progress" | "done")[] = [
     "todo",
@@ -44,34 +137,16 @@ export default function TaskBoard({
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />
+
       <div className="flex gap-4 p-4 overflow-x-auto">
         {statuses.map((status) => (
-          <div
+          <TaskColumn
             key={status}
-            className="flex-1 min-w-[250px] bg-gray-100 border border-gray-700 p-2 rounded"
-          >
-            <h3 className="font-bold mb-2 text-gray-800 capitalize">
-              {status.replace("-", " ")}
-            </h3>
-            <div className="flex flex-col gap-2">
-              {tasks
-                .filter((t) => t.status === status)
-                .map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onUpdateTask={onUpdateTask}
-                    onDeleteTask={() => setDeleteTaskId(task.id)}
-                    childrenTaskNames={task?.childTasks?.map(
-                      (task: RelTask) => task.title
-                    )}
-                    parentTaskNames={task?.parentTasks?.map(
-                      (task: RelTask) => task.title
-                    )}
-                  />
-                ))}
-            </div>
-          </div>
+            tasks={tasks}
+            status={status}
+            onUpdateTask={onUpdateTask}
+            setDeleteTaskId={setDeleteTaskId}
+          />
         ))}
       </div>
     </>
