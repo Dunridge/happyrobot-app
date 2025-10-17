@@ -3,6 +3,9 @@
 1. `pnpm run build` -> `pnpm run dev` (runs on http://localhost:3000)
 2. `node src/server/ws-server.js` (runs on http://localhost:3001)
 
+# How to test 
+1. Added a test endpoint to populate the database and test the population with 10k+ tasks: /api/projects/${projectId}/populate -> see the Populate button on the project page 
+
 # Architecture Decisions
 
 The system is designed with a modular separation between the frontend and backend. The frontend uses Next.js App Router with React for state management, while the backend is implemented via Next.js API routes. Real-time updates are handled through WebSockets, enabling low-latency communication and consistent state across all clients. The architecture is event-driven, ensuring scalability and maintainability as the system grows.
