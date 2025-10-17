@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import { useTaskWebSocket } from "@/hooks/useTaskWebSocket";
 import Loader from "@/components/Loader";
 
-// TODO: figure out how to add the author of the comment if we don't have logins for users
 export default function TaskPage() {
   const params = useParams();
   const router = useRouter();
@@ -80,10 +79,10 @@ export default function TaskPage() {
   if (!task) return <div>Task not found</div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="w-full p-6">
       <button
         onClick={() => router.back()}
-        className="mb-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
+        className="mb-4 cursor-pointer inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
       >
         ← Back
       </button>
@@ -113,14 +112,13 @@ export default function TaskPage() {
         </div>
       )}
 
-      {/* TODO: add the styling here according to other pages  */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
           placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="h-[32px] flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           onClick={handleAddComment}
@@ -134,20 +132,23 @@ export default function TaskPage() {
         <h2 className="text-xl font-semibold mb-3">Comments</h2>
         {task.comments?.length ? (
           <ul className="space-y-3">
-            {task.comments.map((c) => (
-              <li
-                key={c.id}
-                className="p-3 border border-gray-200 rounded-md bg-gray-50"
-              >
-                <div className="flex justify-between items-center">
-                  <strong className="text-gray-800">{c.author}</strong>
-                  <span className="text-gray-400 text-sm">
-                    {new Date(c?.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-                <p className="mt-1 text-gray-700">{c.content}</p>
-              </li>
-            ))}
+            {task.comments
+              ?.slice()
+              .reverse()
+              .map((c) => (
+                <li
+                  key={c.id}
+                  className="p-3 border border-gray-200 rounded-md bg-gray-50"
+                >
+                  <div className="flex justify-between items-center">
+                    <strong className="text-gray-800">{c.author}</strong>
+                    <span className="text-gray-400 text-sm">
+                      {new Date(c?.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-gray-700">{c.content}</p>
+                </li>
+              ))}
           </ul>
         ) : (
           <p className="text-gray-500">

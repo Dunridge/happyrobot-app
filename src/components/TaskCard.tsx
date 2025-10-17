@@ -39,7 +39,7 @@ export default function TaskCard({
   };
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-white border border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
+    <div className="min-h-[160px] flex flex-col gap-3 p-4 bg-white border border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200">
       {isEditing ? (
         <div className="flex gap-2 items-center">
           <input
@@ -97,16 +97,18 @@ export default function TaskCard({
       )}
 
       <div className="flex flex-col gap-1 text-sm text-gray-900">
-        {!!childrenTaskNames && childrenTaskNames?.length > 0 && (
-          <div>
-            <strong>Children:</strong> {childrenTaskNames.join(", ")}
-          </div>
-        )}
-        {!!parentTaskNames && parentTaskNames?.length > 0 && (
-          <div>
-            <strong>Parents:</strong> {parentTaskNames.join(", ")}
-          </div>
-        )}
+        <div>
+          <strong>Children:</strong>{" "}
+          {!!childrenTaskNames && childrenTaskNames?.length > 0
+            ? childrenTaskNames.join(", ")
+            : "NA"}
+        </div>
+        <div>
+          <strong>Parents:</strong>{" "}
+          {!!parentTaskNames && parentTaskNames?.length > 0
+            ? parentTaskNames.join(", ")
+            : "NA"}
+        </div>
       </div>
 
       <Link
