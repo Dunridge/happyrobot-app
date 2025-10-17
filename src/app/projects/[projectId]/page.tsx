@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Loader from "@/components/Loader";
 import TaskBoard from "@/components/TaskBoard";
+import { Project, Task } from "@/types/types";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Select from "react-select";
-import { Project, Task } from "@/types/types";
-import Loader from "@/components/Loader";
+
+// mock tasks for testing the virutal scrolling
+// @ts-expect-error: type error
+const mockTasks: Task[] = Array.from({ length: 50 }, (_, i) => ({
+  id: `task-${i}`,
+  title: `Task ${i + 1}`,
+  status: i % 3 === 0 ? "todo" : i % 3 === 1 ? "in-progress" : "done",
+  childTasks: i % 5 === 0 ? [{ title: "Subtask A" }] : [],
+  parentTasks: i % 4 === 0 ? [{ title: "Parent Task" }] : [],
+}));
 
 export default function ProjectPage() {
   const router = useRouter();
@@ -178,7 +188,7 @@ export default function ProjectPage() {
       )}
 
       <TaskBoard
-        tasks={tasks}
+        tasks={mockTasks} // mockTasks // tasks
         onUpdateTask={updateTask}
         onDeleteTask={deleteTask}
       />
