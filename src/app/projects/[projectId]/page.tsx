@@ -8,16 +8,6 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Select from "react-select";
 
-// mock tasks for testing the virutal scrolling
-// @ts-expect-error: type error
-const mockTasks: Task[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `task-${i}`,
-  title: `Task ${i + 1}`,
-  status: i % 3 === 0 ? "todo" : i % 3 === 1 ? "in-progress" : "done",
-  childTasks: i % 5 === 0 ? [{ title: "Subtask A" }] : [],
-  parentTasks: i % 4 === 0 ? [{ title: "Parent Task" }] : [],
-}));
-
 export default function ProjectPage() {
   const router = useRouter();
   const params = useParams();
@@ -171,6 +161,19 @@ export default function ProjectPage() {
     }
   };
 
+  const handlePopulate = async () => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}/populate`, {
+        method: "POST",
+      });
+      const data = await res.json();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      fetchProjectTasks();
+    }
+  };
+
   if (!project) return <Loader />;
 
   return (
@@ -188,10 +191,17 @@ export default function ProjectPage() {
       )}
 
       <TaskBoard
-        tasks={mockTasks} // mockTasks // tasks
+        tasks={tasks}
         onUpdateTask={updateTask}
         onDeleteTask={deleteTask}
       />
+
+      <button
+        onClick={handlePopulate}
+        className="w-full h-[32px] cursor-pointer font-sans text-sm leading-6 self-start bg-[#0c0c0c] text-white px-6 rounded-md font-medium transition-colors duration-200 hover:bg-[#1a1a1a] active:scale-[0.98]"
+      >
+        Populate 1000 Tasks
+      </button>
 
       <div className="w-full flex flex-col gap-8 mt-8">
         <h2 className="text-3xl font-bold text-gray-900">
