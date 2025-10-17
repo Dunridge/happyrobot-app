@@ -63,8 +63,9 @@ export function TaskColumn({
   const rowVirtualizer = useVirtualizer({
     count: filteredTasks.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 150, // initial guess
+    estimateSize: () => 175,
     overscan: 5,
+    measureElement: (element) => element.getBoundingClientRect().height,
   });
 
   return (
@@ -80,19 +81,22 @@ export function TaskColumn({
             position: "relative",
           }}
         >
-          {rowVirtualizer.getVirtualItems().map((virtualRow: any) => {
-            const task = filteredTasks[virtualRow.index];
-            return (
-              <VirtualTaskRow
-                key={task.id}
-                task={task}
-                measure={rowVirtualizer.measureElement}
-                onUpdateTask={onUpdateTask}
-                setDeleteTaskId={setDeleteTaskId}
-                top={virtualRow.start}
-              />
-            );
-          })}
+          {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rowVirtualizer.getVirtualItems().map((virtualRow: any) => {
+              const task = filteredTasks[virtualRow.index];
+              return (
+                <VirtualTaskRow
+                  key={task.id}
+                  task={task}
+                  measure={rowVirtualizer.measureElement}
+                  onUpdateTask={onUpdateTask}
+                  setDeleteTaskId={setDeleteTaskId}
+                  top={virtualRow.start}
+                />
+              );
+            })
+          }
         </div>
       </div>
     </div>
