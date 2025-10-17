@@ -1,98 +1,44 @@
 
-# HappyRobot test app 
-
-A real-time collaborative task management system that allows users to create and manage multiple projects, add tasks with dependencies, and comment on tasks with instant updates across all clients. The frontend and backend are built with Next.js (App Router) using TypeScript and Tailwind CSS, providing a fast, type-safe, and responsive user experience. PostgreSQL serves as the database, storing projects, tasks, and comments efficiently, including flexible JSON fields for metadata and configuration. Real-time collaboration is enabled through WebSockets, allowing updates to tasks, status changes, and comments to be broadcast instantly to all connected clients. The system is designed to handle large datasets efficiently, supports optimistic UI updates, and can scale over time with minimal latency while maintaining data consistency.
-
-Stack: 
-1. Frontend – Next.js (App Router)
-2. Backend – Next.js API routes
-3. Database – PostgreSQL
-4. Real-time updates – WebSockets
-
 # How to start 
 1. `pnpm run build` -> `pnpm run dev` (runs on http://localhost:3000)
 2. `node src/server/ws-server.js` (runs on http://localhost:3001)
 
-# Collaborative Task Management System - Project Brief
+# Architecture Decisions
 
-## Objectives
-- Users can create multiple projects
-- Users can add, update, and delete tasks within projects
-- Support for task dependencies and status transitions
-- Comment threads on tasks with real-time updates
-- Changes made by one client should be visible to all other clients in near real-time
-- Your app should maintain consistency across clients
-- No usage of Firebase, Supabase, or other managed real-time DBs
+The system is designed with a modular separation between the frontend and backend. The frontend uses Next.js App Router with React for state management, while the backend is implemented via Next.js API routes. Real-time updates are handled through WebSockets, enabling low-latency communication and consistent state across all clients. The architecture is event-driven, ensuring scalability and maintainability as the system grows.
 
-## Constraints
-- Assume Project payloads will eventually be large (2MB+)
-- You must be efficient in how updates are transmitted (avoid resending entire projects)
-- You are free to use tools like WebSockets, server-sent events, polling, etc.
-- You may use any frontend/backend framework or language, but your reasoning should be clear
+# Synchronization Strategy
 
-### Preferred Stack
-- **Frontend:** Next.js (App Router preferred) OR vanilla React with Go backend
-- **Backend:** Next.js API routes OR Go services
+Updates are transmitted as fine-grained events rather than full project payloads to minimize network overhead. The frontend applies optimistic UI updates, providing immediate feedback while the backend validates changes. In case of conflicts, a last-write-wins approach is used, with potential for CRDT-inspired strategies for collaborative editing scenarios. This ensures consistency while supporting real-time collaboration.
 
-## Bonus Points (Optional)
-- Undo/Redo functionality
-- Operational Transform or CRDT-inspired approach
-- Event-based backend (e.g., append-only event log or message queue)
-- Clear domain model
-- Type-safe API contract between frontend/backend
-- Optimistic UI updates with rollback on failure
-- Database transactions for complex operations
-- Caching strategy (Redis, in-memory, etc.)
-- Rate limiting and backpressure handling
+# Scaling Strategy
 
-## Extended Challenges (Choose One or More)
+To efficiently handle large datasets, task lists are virtualized, allowing smooth rendering of 10,000+ tasks. Additional scaling measures include lazy loading, database indexing, and optional caching layers (e.g., Redis) for frequently accessed data. The system is designed to handle large project payloads without impacting client performance.
 
-### Option 1: Performance & Scale
-- Virtual scrolling for 10,000+ tasks
-- Lazy loading with pagination/cursor
-- Database indexing strategy
-- Load testing results (include scripts)
+# Trade-offs
 
-### Option 2: Advanced Collaboration
-- User presence indicators (who's viewing what)
-- Live cursors/selection sharing
-- Collaborative text editing in descriptions
-- Activity feed with real-time notifications
-- @mentions with notifications
+WebSockets vs SSE: WebSockets were chosen for lower latency, but they require more complex connection management.
 
-### Option 3: Developer Experience
-- Comprehensive test suite (unit, integration, e2e)
-- CI/CD pipeline configuration
-- API documentation (Swagger/OpenAPI)
-- Database migrations and seeding
+Optimistic UI: Improves user experience but introduces additional logic for rollback in case of server-side validation failure.
 
-### Option 4: Open-Ended Extension
-- Build something innovative with this system. Examples:
-  - AI-powered task suggestions or auto-categorization
-  - Kanban/Gantt view with drag-and-drop
-  - Time tracking and analytics dashboard
-  - Integration with external services (GitHub, Slack, etc.)
-  - Mobile-responsive PWA with offline support
-  - Your own creative feature that showcases your strengths
+Conflict resolution: Using last-write-wins simplifies implementation but may not handle complex collaborative edits perfectly.
 
-## Deliverables
+# Technology Choices
 
-1. **GitHub Repository**
-   - Private repo with your solution
-   - Invite `carlos-happyrobot`, `joaquinllopez00` to the repo
-   - Working frontend and backend
-   - Setup instructions (ideally Dockerized or minimal install)
-   - Short README covering:
-     - Architecture decisions
-     - How you handle sync
-     - How you'd scale the system over time
-     - Any tradeoffs you made
-     - Technology choices and justifications
-     - Data flow and synchronization strategy
+Frontend: Next.js (App Router) with React for server-side rendering and state management.
 
-2. **Demo Video (~5 minutes)**
-   - Explain what you've built and walk through your code
-   - Live demo of features
-   - Architecture walkthrough
-   - Code highlights
-   - Challenges faced and solutions
+Backend: Next.js API routes for handling project and task operations.
+
+Database: PostgreSQL for structured storage of projects, tasks, and comments.
+
+Real-time: WebSockets for low-latency updates and broadcast of fine-grained changes.
+
+# Data Flow and Synchronization
+
+Clients send small update payloads via WebSockets.
+
+The backend validates and persists the updates in the database.
+
+The server broadcasts the changes to all connected clients subscribed to the same project.
+
+Clients update their local state optimistically and reconcile with server confirmation, ensuring consistency across all sessions.
