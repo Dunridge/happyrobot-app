@@ -6,7 +6,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: projectId } = await params;
-  const numTasks = 1000;
+  const numTasks = 10001;
   const tasks = Array.from({ length: numTasks }, (_, i) => ({
     title: `Task ${i + 1}`,
     status: "todo",

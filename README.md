@@ -1,10 +1,11 @@
 
 # How to start 
-1. `pnpm run build` -> `pnpm run dev` (runs on http://localhost:3000)
-2. `node src/server/ws-server.js` (runs on http://localhost:3001)
+1. `pnpm install`
+2. `pnpm run build` -> `pnpm run dev` (runs on http://localhost:3000)
+3. `node src/server/ws-server.js` (runs on http://localhost:3001)
 
 # How to test 
-1. Added a test endpoint to populate the database and test the population with 10k+ tasks: /api/projects/${projectId}/populate -> see the Populate button on the project page 
+1. Added a test endpoint to populate the database with  and test the population with 10k+ tasks: /api/projects/${projectId}/populate -> see the Populate button on the project page 
 
 # Architecture Decisions
 
