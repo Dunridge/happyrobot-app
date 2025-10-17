@@ -112,7 +112,6 @@ export default function TaskPage() {
         </div>
       )}
 
-      {/* TODO: add the styling here according to other pages  */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
@@ -133,20 +132,23 @@ export default function TaskPage() {
         <h2 className="text-xl font-semibold mb-3">Comments</h2>
         {task.comments?.length ? (
           <ul className="space-y-3">
-            {task.comments.map((c) => (
-              <li
-                key={c.id}
-                className="p-3 border border-gray-200 rounded-md bg-gray-50"
-              >
-                <div className="flex justify-between items-center">
-                  <strong className="text-gray-800">{c.author}</strong>
-                  <span className="text-gray-400 text-sm">
-                    {new Date(c?.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-                <p className="mt-1 text-gray-700">{c.content}</p>
-              </li>
-            ))}
+            {task.comments
+              ?.slice()
+              .reverse()
+              .map((c) => (
+                <li
+                  key={c.id}
+                  className="p-3 border border-gray-200 rounded-md bg-gray-50"
+                >
+                  <div className="flex justify-between items-center">
+                    <strong className="text-gray-800">{c.author}</strong>
+                    <span className="text-gray-400 text-sm">
+                      {new Date(c?.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-gray-700">{c.content}</p>
+                </li>
+              ))}
           </ul>
         ) : (
           <p className="text-gray-500">
