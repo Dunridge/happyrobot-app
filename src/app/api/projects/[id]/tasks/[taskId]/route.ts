@@ -88,6 +88,23 @@ export async function PUT(
     },
   });
 
+  if (data.status === "done") {
+    const childTasks = await prisma.task.findMany({
+      where: {
+        projectId: id,
+        dependencies: { has: taskId },
+      },
+      select: { id: true },
+    });
+
+    if (childTasks.length > 0) {
+      await prisma.task.updateMany({
+        where: { id: { in: childTasks.map((t) => t.id) } },
+        data: { status: "done" },
+      });
+    }
+  }
+
   return NextResponse.json(updatedTask);
 }
 
@@ -98,9 +115,14 @@ export async function DELETE(
   const { id, taskId } = await params;
 
   try {
+    await prisma.comment.deleteMany({
+      where: { taskId },
+    });
+
     await prisma.task.delete({
       where: { id: taskId, projectId: id },
     });
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });

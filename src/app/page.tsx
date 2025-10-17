@@ -106,7 +106,7 @@ export default function DashboardPage() {
         onCancel={handleCancelDelete}
       />
 
-      <div className="flex flex-col gap-14 p-8 rounded-2xl bg-white border border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="flex flex-col gap-14 rounded-2xl bg-white transition-all duration-300">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Add New Project
         </h2>
