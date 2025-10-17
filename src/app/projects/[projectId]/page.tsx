@@ -41,13 +41,23 @@ export default function ProjectPage() {
     const updatedTask = { ...prevTask, ...updates };
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
 
+    if (updates.status === "done") {
+      const children = tasks.filter((t) => t.dependencies.includes(taskId));
+
+      if (children.length > 0) {
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.dependencies.includes(taskId) ? { ...t, status: "done" } : t
+          )
+        );
+      }
+    }
+
     try {
       const res = await fetch(`/api/projects/${projectId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...updatedTask,
-        }),
+        body: JSON.stringify(updatedTask),
       });
 
       if (!res.ok) {
@@ -58,6 +68,7 @@ export default function ProjectPage() {
       }
 
       const savedTask: Task = await res.json();
+
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskId
