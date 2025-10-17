@@ -9,7 +9,7 @@ interface Project {
 
 type Props = {
   projects: Project[];
-  handleDeleteProject: (projectId: string) => Promise<void>;
+  handleDeleteProject: (projectId: string) => void;
 };
 
 export default function ProjectList({ projects, handleDeleteProject }: Props) {
